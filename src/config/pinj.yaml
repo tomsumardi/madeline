@@ -1,15 +1,3 @@
-* Config settings (python):
- - system
- - network
- - resource
- - logging
- - backend
- - communication channel
-
-convert below to yaml.
-
-system.yaml
-
 - version: "string"
 - interface:
     + mode: "active", "passive"

@@ -70,7 +70,10 @@ license: TBD
 
 #### Current work:
 * config settings
-  + new design based on old design mistakes
+  - README.md (https://github.com/tomsumardi/madeline/tree/master/src/config)
+  - system.yaml config schema
+  - pp.yaml config schema 
+  - pinj.yaml config schema 
 
 architecture philosophy: microservice 
 
