@@ -1,6 +1,7 @@
 * Backend:
- - analytics 
+ - analytics
  - log collector
- - ?
- - communication channel 
+ - plugin to hadoop cluster
+ - plugin to ceph object store
+ - communication channel
 
