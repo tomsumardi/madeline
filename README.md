@@ -10,7 +10,8 @@ Filtering will be done on packet-processing and http processing components and i
 
 Note: 
   - this is my second attempt, total rewrite the original messed up monolithic design
-  - first pass will be done on out-of-band work.
+  - first pass will be done on out-of-band work
+  - https (TLS) packets capturing with ceph datastore on the backend (future project)
   - network analytics (future project) 
 
 ### daemon service components:
