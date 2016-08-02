@@ -53,3 +53,10 @@ Note: first pass will be done on out-of-band work.
  - simulate transparent caching 
 
 
+Current work:
+1. config settings
+  + new design based on old design mistakes
+
+
+
+
