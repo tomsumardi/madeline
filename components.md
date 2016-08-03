@@ -32,8 +32,7 @@
  - httpd REST api endpoint
  - analytics 
  - log collector
- - plugin to hadoop cluster
- - plugin to ceph object store
+ - plugin to openstack? object store?
  - communication channel 
  
 * Caching server:
