@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Product",
+  "description": "packet processing input",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "The unique version of component",
+      "type": "string"
+    },
+    "interfaces": {
+      "type": "array",
+      "properties": {
+        "name": {
+          "description": "Interface Name",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Interface mode (tx/rx/txrx)",
+          "type": "string"
+        },
+        "pcap_filters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "l3_blacklists": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "name",
+        "mode",
+        "pcap_filters"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "interfaces"
+  ]
+}

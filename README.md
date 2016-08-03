@@ -16,11 +16,10 @@ Note:
 
 ### daemon service components:
 * Config settings (python):
- - system
- - network
- - resource
- - logging
- - backend
+ - pp json schema
+ - http-proc json schema
+ - pinj json schema
+ - ?
  - communication channel
  
 * Packet processing (C):
@@ -46,6 +45,7 @@ Note:
  - communication channel 
 
 * Backend:
+ - httpd REST api endpoint
  - analytics 
  - log collector
  - plugin to hadoop cluster
@@ -62,18 +62,10 @@ Note:
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
 
 * Lab Requirements:
- - espn, amazon streaming, HBOgo, dailymotion, netflix account
  - any x86 laptop with 2 ethernet ports
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
 license: TBD
-
-#### Current work:
-* config settings
-  - README.md (https://github.com/tomsumardi/madeline/tree/master/src/config)
-  - system.yaml config schema
-  - pp.yaml config schema 
-  - pinj.yaml config schema 
 
 architecture philosophy: microservice 
 

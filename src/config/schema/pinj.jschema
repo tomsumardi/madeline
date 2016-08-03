@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Product",
+  "description": "packet processing output",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "The unique version of component",
+      "type": "string"
+    },
+    "cache_server": {
+      "description": "The caching server ip address",
+      "type": "string"
+    },
+    "interfaces": {
+      "type": "array",
+      "properties": {
+        "name": {
+          "description": "Interface Name",
+          "type": "string"
+        },
+        "mode": {
+          "description": "Interface mode (tx/rx/txrx)",
+          "type": "string"
+        },
+        "proxy_request": {
+          "description": "add proxy injection info (optional)",
+          "type": "boolean"
+        },
+        "mac_src": {
+          "description": "hardcoded mac source value (optional)",
+          "type": "string"
+        },
+        "mac_dst": {
+          "description": "hardcoded mac dest value (optional)",
+          "type": "string"
+        },
+        "mpls_labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "name",
+        "mode"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "cache_server"
+  ]
+}
+

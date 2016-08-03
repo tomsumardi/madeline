@@ -1,27 +1,6 @@
 * Config settings (python):
- - system
- - network
- - resource
- - logging
- - backend
+ - pp json schema
+ - http-proc json schema
+ - pinj json schema
+ - ?
  - communication channel
-
-convert below to yaml.
-
-system.yaml
-
-- version: "string"
-- interface:
-    + mode: "active", "passive"
-    + incoming:
-       - l3_blacklist: ["string",...]
-       - name_direction: ["string:string",...]
-       - pcap_filter: ["string",...]
-    + outgoing:
-       - name_direction: ["string:string",...]
-       - proxy_request: boolean
-       - mpls_label: ["string",...]
-       + mac:
-          - src: "00:00:00:00:00:00"
-	  - dst: "00:00:00:00:00:00"
-	- cache_server: "127.0.0.1"
