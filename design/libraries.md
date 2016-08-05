@@ -1,6 +1,7 @@
 ### technologies/libraries:
 - pfring library
 - zeromq library
+- amqp rabbitmq
 - C Glib (GNU library)
 - mysql
 - nginx
@@ -9,10 +10,9 @@
 - etc
 
 ### language:
+- make
+- bash
 - python
 - C
 - C++
-
-### architecture ideology:
-http://martinfowler.com/articles/microservices.html
 
