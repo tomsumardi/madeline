@@ -15,15 +15,17 @@ Note:
   - network analytics (future project) 
 
 ### daemon service components (components.md file):
-* Config settings (python):
-* Packet processing (C):
-* HTTP processing:
-* packet injection:
-* Backend: 
-* Caching server:
-* Simulation:
+* Interface Packet Processing Service (IPPS)
+* Packet Payload Processing (PPP)
+* Packet Handling Service (PHS)
+* Management Server (MS)
+* Caching Server (CS)
+* Simulation (SIM)
 
 Note: per-component design details provided within src folder
+
+* Design Document (own webpage in the future): 
+https://github.com/tomsumardi/madeline/design/madeline.docx
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
