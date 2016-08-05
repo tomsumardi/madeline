@@ -25,7 +25,7 @@ Note:
 Note: per-component design details provided within src folder
 
 * Design Document (own webpage in the future): 
-https://github.com/tomsumardi/madeline/design/madeline.docx
+https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
