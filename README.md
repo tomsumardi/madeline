@@ -14,7 +14,7 @@ Note:
   - https (TLS) packets capturing with datastore/openstack on the backend (future project)
   - network analytics (future project) 
 
-### daemon service components (components.md file):
+### components:
 * Interface Packet Processing Service (IPPS)
 * Packet Payload Processing (PPP)
 * Packet Handling Service (PHS)
@@ -35,6 +35,4 @@ https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
 license: TBD
-
-architecture philosophy: microservice 
 
