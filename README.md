@@ -4,7 +4,7 @@
 
 ### Introduction:
 Madeline is high performance OTT Video caching ecosystem, which includes simple REST API endpoint, packet routing engine and video caching server.
-The idea is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed futher in the future through some kind of storage backend such as ceph.
+The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed futher in the future through some kind of storage backend such as ceph.
 
 ### Summary:
 Madeline is out-of/in-band inline (realtime) transparent caching ecosystem, which performs intelligent OTT online video (MPEG-DASH/apple HLS/etc) caching based on regular expression or ip address/port tuple logic rulesets. 
