@@ -1,6 +1,6 @@
 #Madeline
 
-### Status: high level design in progress
+### Status: design...
 
 ### Summary: (need work)
 Madeline is out-of/in-band inline (realtime) transparent caching ecosystem, which performs intelligent OTT online video (MPEG-DASH/apple HLS/etc) caching based on regular expression or ip address/port tuple logic rulesets. 
@@ -27,12 +27,14 @@ Note: per-component design details provided within src folder
 * Design Document (own webpage in the future): 
  - High level: https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
  - IPPS: https://github.com/tomsumardi/madeline/blob/master/design/ipps.docx
+ - PHS: https://github.com/tomsumardi/madeline/blob/master/design/phs.docx
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
 
 * Lab Requirements:
- - any x86 laptop with 2 ethernet ports
+ - any cheap L3 router/switch
+ - any x86 laptop with 3 ethernet ports (mgmt,input,output)
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
 license: TBD
