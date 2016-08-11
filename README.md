@@ -24,7 +24,7 @@ Note:
 
 Note: per-component design details provided within src folder
 
-* Design Document (own webpage in the future): 
+* Design Document (own webpage in the future) -- all raw (blob) format: 
  - High level: https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
  - IPPS: https://github.com/tomsumardi/madeline/blob/master/design/ipps.docx
  - PHS: https://github.com/tomsumardi/madeline/blob/master/design/phs.docx
