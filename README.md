@@ -29,7 +29,9 @@ Note:
 * Caching Server (CS)
 * Simulation (SIM)
 
-Note: per-component design details provided within src folder
+Note: per-component design details provided within design folder
+
+### Resources:
 
 * Design Document (own webpage in the future) -- all raw (blob) format: 
  - High level: https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
