@@ -42,6 +42,8 @@ Note: per-component design details provided within design folder
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
 
+* Development environment: Virtual Machine running CentOS 7.x.
+
 * Lab Requirements:
  - any cheap L3 router/switch
  - any x86 laptop with 3 ethernet ports (mgmt,input,output)
