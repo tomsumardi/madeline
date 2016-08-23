@@ -1,0 +1,5 @@
+-	Background configuration/registration thread 
+-	Pfring configuration
+-	Thread management and load balancing
+-	Packet L2-L3 processing and filtering
+-   Logging

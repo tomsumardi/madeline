@@ -1,0 +1,8 @@
+unzip PF_RING-6.4.1-stable 
+cd PF_RING-6.4.1-stable 
+cd PF_RING/kernel
+make
+sudo make install
+cd ../userland/lib
+sudo make install
+sudo insmod ./pf_ring.ko

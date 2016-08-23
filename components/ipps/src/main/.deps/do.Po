@@ -1,0 +1,14 @@
+do.o: do.c /usr/include/stdc-predef.h do.h ../../src/bkgrnd/lib.h \
+ ../../src/thdmgmt/lib.h ../../src/pfilter/lib.h ../../src/logging/lib.h
+
+/usr/include/stdc-predef.h:
+
+do.h:
+
+../../src/bkgrnd/lib.h:
+
+../../src/thdmgmt/lib.h:
+
+../../src/pfilter/lib.h:
+
+../../src/logging/lib.h:
