@@ -1,6 +1,6 @@
 #Madeline
 
-### Status: rpm build, working on ipps...
+### Status: rpm build, working on ipps....
 
 ### Project Intro and Vision:
 Madeline is high performance OTT Video caching ecosystem, which includes simple REST API endpoint, packet routing engine and video caching server.
