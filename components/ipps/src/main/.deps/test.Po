@@ -1,5 +1,0 @@
-test.o: test.c /usr/include/stdc-predef.h test.h
-
-/usr/include/stdc-predef.h:
-
-test.h:

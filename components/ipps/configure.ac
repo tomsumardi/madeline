@@ -10,6 +10,8 @@ AC_CONFIG_HEADERS([config.h])
 #AC_LIBOBJ([obj])
 AC_PROG_RANLIB
 
+PKG_CHECK_MODULES([glib2], [glib-2.0 >= 2.42])
+
 #check package/shared library dependencies
 #AC_CHECK_PROG(PFRING_CHECK,pfring,yes)
 #if test x"$PFRING_CHECK" != x"yes" ; then

@@ -76,10 +76,10 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+DIST_COMMON = $(top_srcdir)/common.mk $(srcdir)/Makefile.in \
+	$(srcdir)/Makefile.am $(top_srcdir)/depcomp
 bin_PROGRAMS = ipps$(EXEEXT)
 subdir = src/main
-DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -112,6 +112,19 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -195,6 +208,9 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -219,6 +235,8 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+glib2_CFLAGS = @glib2_CFLAGS@
+glib2_LIBS = @glib2_LIBS@
 host_alias = @host_alias@
 htmldir = @htmldir@
 includedir = @includedir@
@@ -243,8 +261,50 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = -I../thdmgmt
-ipps_SOURCES = main.c main.h test.c test.h
+
+#-------------------------------------------------------------------------
+# Target Architecture
+#-------------------------------------------------------------------------
+HOST_OS = linux
+TARGET_OS = linux
+CPU_ARCH = x86_64
+
+#ifndef CPU_ARCH
+#ifeq ($(findstring 86_64,$(shell uname -m)),86_64)
+#CPU_ARCH = x86_64
+#endif
+#ifeq ($(findstring i686,$(shell uname -m)),i686)
+#CPU_ARCH = i686
+#endif
+#endif
+
+#-------------------------------------------------------------------------
+# Compiler/Linker Options
+#-------------------------------------------------------------------------
+#default values
+
+#C init
+CFLAGS_DEFS = -D_GNU_SOURCE
+
+# C library
+#-------------------------------------------------------------------------
+# glib2
+#-------------------------------------------------------------------------
+CFLAGS_INC = $(glib2_CFLAGS)
+#endif
+#Passing Version to MDLN
+#CFLAGS_OPTS        += -DMDLN_VER='"$(MDLNDIR_VER)"' -DMDLN_REL='"$(MDLNDIR_REL)"'
+
+#C++ init
+CFLAGS_OPTS = -Wall -Wextra -Wno-unused-parameter \
+	-Wno-deprecated-declarations -std=gnu++11 -Wno-literal-suffixs
+LDFLAGS_OPTS = 
+LDFLAGS_DEFS = 
+LDFLAGS_INC = $(xml_LIBS) $(glib2_LIBS)
+AM_CFLAGS = -I../thdmgmt -I../bkgrnd -I../logging -I../pfilter
+AM_CXXFLAGS = $(CFLAGS_OPTS) $(CFLAGS_DEFS) $(CFLAGS_INC)
+AM_LDFLAGS = $(LDFLAGS_OPTS) $(LDFLAGS_DEFS) $(LDFLAGS_INC)
+ipps_SOURCES = main.cpp main.h test.cpp test.h
 ipps_LDADD = $(top_srcdir)/src/thdmgmt/libthdmgmt.a \
              $(top_srcdir)/src/bkgrnd/libbkgrnd.a \
              $(top_srcdir)/src/logging/liblogging.a \
@@ -253,8 +313,8 @@ ipps_LDADD = $(top_srcdir)/src/thdmgmt/libthdmgmt.a \
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+.SUFFIXES: .cpp .o .obj
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/common.mk $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -263,9 +323,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/main/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/main/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/main/Makefile
+	  $(AUTOMAKE) --foreign src/main/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -275,6 +335,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
 	esac;
+$(top_srcdir)/common.mk:
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
@@ -329,7 +390,7 @@ clean-binPROGRAMS:
 
 ipps$(EXEEXT): $(ipps_OBJECTS) $(ipps_DEPENDENCIES) $(EXTRA_ipps_DEPENDENCIES) 
 	@rm -f ipps$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(ipps_OBJECTS) $(ipps_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK) $(ipps_OBJECTS) $(ipps_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -340,19 +401,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@
 
-.c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c $<
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
 
-.c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c `$(CYGPATH_W) '$<'`
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -558,6 +619,13 @@ uninstall-am: uninstall-binPROGRAMS
 	ps ps-am tags tags-am uninstall uninstall-am \
 	uninstall-binPROGRAMS
 
+#C and C++ release vs debug build
+#ifdef RELEASE
+#	CFLAGS_OPTS    += -O3 -fdata-sections -ffunction-sections `pkg-config --cflags glib-2.0`
+#	LDFLAGS_OPTS   += -Wl,--gc-sections
+#else
+	CFLAGS_OPTS    += -g -Wall -Wformat-security -fstack-protector-all `pkg-config --cflags glib-2.0`
+	CFLAGS_DEFS    += -DMDLN_DEBUG
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
