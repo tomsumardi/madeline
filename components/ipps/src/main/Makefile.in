@@ -301,7 +301,18 @@ CFLAGS_OPTS = -Wall -Wextra -Wno-unused-parameter \
 LDFLAGS_OPTS = 
 LDFLAGS_DEFS = 
 LDFLAGS_INC = $(xml_LIBS) $(glib2_LIBS)
-AM_CFLAGS = -I../thdmgmt -I../bkgrnd -I../logging -I../pfilter
+
+# C++ library
+#-------------------------------------------------------------------------
+# C++
+#-------------------------------------------------------------------------
+#LDFLAGS_INC     += -lstdc++ -lm -lboost_regex
+
+#-------------------------------------------------------------------------
+# define compiler and linker flags
+#-------------------------------------------------------------------------
+AM_CFLAGS = $(CFLAGS_OPTS) $(CFLAGS_DEFS) $(CFLAGS_INC) -I../thdmgmt \
+	-I../bkgrnd -I../logging -I../pfilter
 AM_CXXFLAGS = $(CFLAGS_OPTS) $(CFLAGS_DEFS) $(CFLAGS_INC)
 AM_LDFLAGS = $(LDFLAGS_OPTS) $(LDFLAGS_DEFS) $(LDFLAGS_INC)
 ipps_SOURCES = main.cpp main.h test.cpp test.h
@@ -323,9 +334,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am $(top_srcdir)/common.mk $(am__conf
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/main/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/main/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/main/Makefile
+	  $(AUTOMAKE) --gnu src/main/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
