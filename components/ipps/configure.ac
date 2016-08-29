@@ -9,6 +9,8 @@ AC_CONFIG_HEADERS([config.h])
 #AC_CONFIG_LIBOBJ_DIR([lib])
 #AC_LIBOBJ([obj])
 AC_PROG_RANLIB
+PKG_PROG_PKG_CONFIG
+AC_CONFIG_MACRO_DIR([m4])
 
 PKG_CHECK_MODULES([glib2], [glib-2.0 >= 2.42])
 
@@ -16,11 +18,6 @@ PKG_CHECK_MODULES([glib2], [glib-2.0 >= 2.42])
 #AC_CHECK_PROG(PFRING_CHECK,pfring,yes)
 #if test x"$PFRING_CHECK" != x"yes" ; then
 #   AC_MSG_ERROR([Please install pfring.])
-#fi
-
-#AC_CHECK_PROG(PFRING_CHECK,glib,yes)
-#if test x"$GLIB_CHECK" != x"yes" ; then
-#   AC_MSG_ERROR([Please install glib.])
 #fi
 
 # Checks for programs.
