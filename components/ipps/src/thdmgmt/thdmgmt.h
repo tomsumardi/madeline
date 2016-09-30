@@ -1,6 +1,8 @@
 #ifndef _THDMGMT_H_
 #define _THDMGMT_H_
 
-void thdmgmt_print(char *str);
+#include "src/ipps.h"
+
+void thdmgmt_print(const char *str);
 
 #endif /* _THDMGMT_H_ */

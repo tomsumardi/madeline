@@ -1,8 +1,9 @@
 #include "test.h"
-#include "src/bkgrnd/lib.h"
-#include "src/thdmgmt/lib.h"
-#include "src/pfilter/lib.h"
-#include "src/logging/lib.h"
+
+#include "src/logging/logging.h"
+#include "src/pfilter/pfilter.h"
+#include "src/thdmgmt/thdmgmt.h"
+#include "src/bkgrnd/bkgrnd.h"
 
 void print_all(void)
 {
