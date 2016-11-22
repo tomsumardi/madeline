@@ -33,11 +33,11 @@ Note: per-component design details provided within design folder
 
 ### Resources:
 
-* Design Document (own webpage in the future) -- all raw (blob) format: 
- - High level: https://github.com/tomsumardi/madeline/blob/master/design/madeline.docx
- - IPPS: https://github.com/tomsumardi/madeline/blob/master/design/ipps.docx
- - PPP: https://github.com/tomsumardi/madeline/blob/master/design/ppp.docx
- - PHS: https://github.com/tomsumardi/madeline/blob/master/design/phs.docx
+* Design Document wiki pages: 
+ - High level: https://github.com/tomsumardi/madeline/wiki
+ - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
+ - PPP: https://github.com/tomsumardi/madeline/wiki/PPP
+ - PHS: https://github.com/tomsumardi/madeline/wiki/PHS
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
