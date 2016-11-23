@@ -10,12 +10,12 @@ int ippsJson::readLocal(string location)
         vector< pair<string, string> > interfaces;
 
         // Iterator over all interfaces
-        for (boost::property_tree::ptree::value_type &animal : rootJson.get_child("interfaces"))
+        for (boost::property_tree::ptree::value_type &interface : rootJson.get_child("interfaces"))
         {
             // Get the label of the node
-            string name = animal.first;
+            string name = interface.first;
             // Get the content of the node
-            string color = animal.second.data();
+            string color = interface.second.data();
             cout << color << endl;
             interfaces.push_back(make_pair(name, color));
         }
