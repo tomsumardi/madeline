@@ -1,6 +1,7 @@
 #ifndef _MPARSE_H_
 #define _MPARSE_H_
 
+#include "../mutil/src/madeline.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -13,7 +14,7 @@ class ippsJson{
   typedef struct mjson {
     int test;
   }ippsMjson;
-  boost::property_tree::ptree pt;
+  boost::property_tree::ptree rootJson;
   ippsMjson jsonObj;
 
   public:
@@ -21,8 +22,8 @@ class ippsJson{
     {
       readLocal(jsonTxt);
     }
-    int       readLocal(string jsonTxt);
-    int       parse();
+    int readLocal(string jsonTxt);
+    int parse();
    // log()
 };
 /*
