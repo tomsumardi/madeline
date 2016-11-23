@@ -1,8 +1,8 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#include "../bkgrnd/mbkgrnd.h"
 #include "src/ipps.h"
-#include "src/bkgrnd/bkgrnd.h"
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 

@@ -1,9 +1,9 @@
 #include "test.h"
 
+#include "../bkgrnd/mbkgrnd.h"
 #include "src/logging/logging.h"
 #include "src/pfilter/pfilter.h"
 #include "src/thdmgmt/thdmgmt.h"
-#include "src/bkgrnd/bkgrnd.h"
 
 void print_all(void)
 {

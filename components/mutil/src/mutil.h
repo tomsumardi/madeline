@@ -2,5 +2,6 @@
 #define _MUTIL_H_
 
 #include "madeline.h"
+#include "mutil.h"
 
 #endif /* _MUTIL_H_ */

@@ -1,14 +1,14 @@
-#include "bkgrnd.h"
+#include "mbkgrnd.h"
 using namespace std;
 
 const gchar* bkgrndParseMainArgs(int argc, char *argv[], GOptionEntry* entries)
 {
-	GError*             _error = NULL;
-	GOptionContext*     _context;
-    const gchar*        _strHelpMenu = NULL;
+  GError*             _error = NULL;
+  GOptionContext*     _context;
+  const gchar*        _strHelpMenu = NULL;
 
-	do
-	{
+  do
+  {
         _context = g_option_context_new ("- IPPS");
         if(NULL == _context)
         {
@@ -27,9 +27,9 @@ const gchar* bkgrndParseMainArgs(int argc, char *argv[], GOptionEntry* entries)
             g_print ("option get help failed");
             break;
         }
-	}while(FALSE);
+  }while(FALSE);
 
-	return _strHelpMenu;
+  return _strHelpMenu;
 }
 
 void bkgrnd_print(const char *str)

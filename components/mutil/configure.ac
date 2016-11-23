@@ -22,6 +22,10 @@ AC_PROG_CC
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
+AC_LANG_PUSH([C++])
+AC_CHECK_HEADERS([boost/foreach.hpp], [],
+    [AC_MSG_ERROR(You need the Boost libraries.)])
+AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
