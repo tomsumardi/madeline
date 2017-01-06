@@ -1,6 +1,8 @@
 #Madeline
 
-### Status: rpm build, working on ipps....
+### Status: 
+- C++ logging 
+- working on ipps (c++)....
 
 ## -------------------------------------------------------------
 ## Building and running...
@@ -91,6 +93,9 @@ Note: per-component design details provided within design folder
  - any cheap L3 router/switch
  - any x86 laptop with 3 ethernet ports (mgmt,input,output)
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
+
+Reference to my old code (al "C" code only): 
+https://github.com/tomsumardi/laguna/tree/master/1.0/src
 
 license: TBD
 
