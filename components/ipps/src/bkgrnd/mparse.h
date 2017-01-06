@@ -9,6 +9,7 @@
 #include <string>
 
 using namespace std;
+namespace ipps_proptree = boost::property_tree;
 
 class ippsJson{
     typedef struct interfaces {
@@ -33,6 +34,7 @@ class ippsJson{
     int parse();
    // log()
 };
+
 /*
 
 class ippsCmd {
