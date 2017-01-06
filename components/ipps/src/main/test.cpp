@@ -7,8 +7,8 @@
 
 void print_all(void)
 {
-    bkgrnd_print(" test1 \n");
-    thdmgmt_print(" test2 \n");
-    pfilter_print(" test3 \n");
-    logging_print(" test4 \n");
+    bkgrnd_print(" test libbkgrnd.a \n");
+    thdmgmt_print(" test libthdmgmt.a \n");
+    pfilter_print(" test libpfilter.a \n");
+    logging_print(" test liblogging.a \n");
 }

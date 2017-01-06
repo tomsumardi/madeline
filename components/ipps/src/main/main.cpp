@@ -8,6 +8,8 @@ int main(int argc, char *argv[])
     const gchar*    _strHelpMenu;
     do
     {
+        printf("------ipps------\n");
+        printf("main()\n");
         //+parse input arguments  (main)
         // --verbose
         // --standalone
