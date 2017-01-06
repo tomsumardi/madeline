@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "interfaces": [
     {
       "name": "eth0",
@@ -15,14 +15,14 @@
     },
     {
       "name": "eth1",
-      "mode": "tx",
+      "direction": "tx",
       "pcap_filters": [
-        "tcp port 80",
-        "udp port 80"
+        "tcp port 8080",
+        "udp port 8080"
       ],
       "l3_blacklists": [
-        "192.168.56.2",
-        "192.168.56.3"
+        "192.168.57.2",
+        "192.168.57.3"
       ]
     }
   ]

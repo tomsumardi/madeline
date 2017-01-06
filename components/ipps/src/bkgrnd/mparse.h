@@ -11,18 +11,25 @@
 using namespace std;
 
 class ippsJson{
-  typedef struct mjson {
-    int test;
-  }ippsMjson;
+    typedef struct interfaces {
+        string name;
+        string direction;
+        vector< string > pcap_filters;
+        vector< string > l3_blacklists;
+    }ippsInterf;
+
+    typedef struct config{
+        string version;
+        vector< ippsInterf > interfaces;
+    }ippsConfig;
+
   boost::property_tree::ptree rootJson;
-  ippsMjson jsonObj;
+  ippsConfig                  ippsConf;
+  string                      jsonTxtLoc;
 
   public:
     ippsJson(string jsonTxt)
-    {
-      readLocal(jsonTxt);
-    }
-    int readLocal(string jsonTxt);
+    {jsonTxtLoc = jsonTxt;}
     int parse();
    // log()
 };

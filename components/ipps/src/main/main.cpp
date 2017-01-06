@@ -2,15 +2,6 @@
 #include "test.h"
 using namespace std;
 
-/*
-void loadJson(string location)
-{
-  ippsMjson* pjsonObj;
-
-  ippsJson jsonObj(location);
-  pjsonObj = jsonObj.parse();
-}*/
-
 int main(int argc, char *argv[])
 {
     int             _sts = MDSUCCESS;
@@ -31,7 +22,10 @@ int main(int argc, char *argv[])
         //+ register with MS if not standalone (main)
         //+ polls for new configuration from MS using AMQP channel (bkgrnd)
         //+ loads ipps json configuration (bkgrnd)
-        //loadJson("/test/tom/test.json");
+        ippsJson jsonObj(JSON_PARSE_LOC);
+        _sts = jsonObj.parse();
+        if (_sts != MDSUCCESS)
+            break;
         //+ configure pfring (pfring)
         //+ configure debug logging (logging)
         //+ Configures L2/L3 Filters (pfilter)

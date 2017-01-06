@@ -1,51 +1,56 @@
 #include "mparse.h"
 
-int ippsJson::readLocal(string location)
+int ippsJson::parse()
 {
+
     try
     {
-        boost::property_tree::read_json(location, rootJson);
+        boost::property_tree::read_json(jsonTxtLoc, rootJson);
 
         // A vector to allow storing our interfaces
         vector< pair<string, string> > interfaces;
 
         // Iterator over all interfaces
-        for (boost::property_tree::ptree::value_type &interface : rootJson.get_child("interfaces"))
+        for (boost::property_tree::ptree::value_type &lstintf : rootJson.get_child("interfaces"))
         {
-            // Get the label of the node
-            string name = interface.first;
-            // Get the content of the node
-            string color = interface.second.data();
-            cout << color << endl;
-            interfaces.push_back(make_pair(name, color));
+            ippsInterf _intf;
+            for (boost::property_tree::ptree::value_type &interface : lstintf.second)
+            {
+                // Get the label of the node
+                std::string key = interface.first;
+                if (0 == key.compare("name"))
+                {
+                    // Get the content of the node
+                    _intf.name = interface.second.data();
+                }
+                else if(0 == key.compare("direction"))
+                {
+                    _intf.direction = interface.second.data();
+                }
+                else if(0 == key.compare("pcap_filters"))
+                {
+                    for (boost::property_tree::ptree::value_type &pcap_filters : interface.second)
+                    {
+                        //std::string value = pcap_filters.second.data();
+                        _intf.pcap_filters.push_back(pcap_filters.second.data());
+                    }
+                }
+                else if(0 == key.compare("l3_blacklists"))
+                {
+                    for (boost::property_tree::ptree::value_type &l3_blacklists : interface.second)
+                    {
+                        //std::string value = l3_blacklists.second.data();
+                        _intf.l3_blacklists.push_back(l3_blacklists.second.data());
+                    }
+                }
+            }
+            ippsConf.interfaces.push_back(_intf);
         }
         return MDSUCCESS;
     }
     catch (exception const& e)
     {
       cerr << e.what() << endl;
-    }
-    return MDERROR;
-}
-
-int ippsJson::parse()
-{
-    try
-    {
-        string msg = rootJson.get<string>("version");
-        cout << msg << endl;
-
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, rootJson.get_child("version"))
-        {
-          assert(v.first.empty()); // array elements have no names
-          cout << v.first.data() << endl;
-          // etc
-        }
-        return MDSUCCESS;
-    }
-    catch (exception const& e)
-    {
-        cerr << e.what() << endl;
     }
     return MDERROR;
 }
