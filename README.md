@@ -2,7 +2,50 @@
 
 ### Status: rpm build, working on ipps....
 
-### Project Intro and Vision:
+## -------------------------------------------------------------
+## Building and running...
+
+### 1. How to build: Each components must be build separately. 
+
+* ipps:
+```
+cd <install-home>/madeline/components/ipps
+make clean all
+./configure
+make
+```
+
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+### 2. How to clean: Each components must be clean separately. 
+* ipps:
+```
+cd <install-home>/madeline/components/ipps
+make clean
+make clean all
+make clean dist
+```
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+### 2. How to run: Each components must be clean separately. 
+* ipps: 
+```
+cd <install-home>/madeline/components/ipps
+src/main/ipps
+```
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+## -------------------------------------------------------------
+## Project Intro and Vision:
 Madeline is high performance OTT Video caching ecosystem, which includes simple REST API endpoint, packet routing engine and video caching server.
 The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of storage backend such as ceph.
 
