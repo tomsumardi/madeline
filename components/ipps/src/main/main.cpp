@@ -17,7 +17,6 @@ int main(int argc, char *argv[])
             _sts = 1;
             break;
         }
-        cout << "hello\n";
         print_all();
         //+ register with MS if not standalone (main)
         //+ polls for new configuration from MS using AMQP channel (bkgrnd)

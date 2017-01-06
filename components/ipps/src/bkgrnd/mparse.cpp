@@ -5,7 +5,12 @@ int ippsJson::parse()
 
     try
     {
-        boost::property_tree::read_json(jsonTxtLoc, rootJson);
+
+        //BOOST_ASSERT(strJsonTxtLoc)
+        //Might change below to c++ rapidJson DOM library
+
+        cout << "unmarshalling:" << strJsonTxtLoc << "\n";
+        boost::property_tree::read_json(strJsonTxtLoc, rootJson);
 
         // A vector to allow storing our interfaces
         vector< pair<string, string> > interfaces;

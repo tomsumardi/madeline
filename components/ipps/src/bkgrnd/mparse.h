@@ -25,11 +25,11 @@ class ippsJson{
 
   boost::property_tree::ptree rootJson;
   ippsConfig                  ippsConf;
-  string                      jsonTxtLoc;
+  string                      strJsonTxtLoc;
 
   public:
     ippsJson(string jsonTxt)
-    {jsonTxtLoc = jsonTxt;}
+    {strJsonTxtLoc = jsonTxt;}
     int parse();
    // log()
 };
