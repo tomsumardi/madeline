@@ -35,7 +35,7 @@ make clean dist
 * phs:
 * ppp:
 
-### 2. How to run: Each components must be clean separately. 
+### 2. How to run: Each components must be run separately. 
 * ipps: 
 ```
 cd <install-home>/madeline/components/ipps
