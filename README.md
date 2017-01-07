@@ -39,7 +39,17 @@ make clean dist
 * ipps: 
 ```
 cd <install-home>/madeline/components/ipps
-src/main/ipps
+ipps -h
+Usage:
+  ipps [OPTION...] - IPPS
+
+Help Options:
+  -h, --help            Show help options
+
+Application Options:
+  -v, --verbose         verbose
+  -s, --standalone      standalone, no MS
+  -c, --config=file     json config file
 ```
 * cs: 
 * ms: 
