@@ -5,7 +5,6 @@ int ippsJson::parse()
 
     try
     {
-
         //BOOST_ASSERT(strJsonTxtLoc)
         //Might change below to c++ rapidJson DOM library
 

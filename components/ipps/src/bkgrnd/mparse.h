@@ -12,6 +12,14 @@ using namespace std;
 namespace ipps_proptree = boost::property_tree;
 
 class ippsJson{
+
+  public:
+    ippsJson(){};
+    void setJsonLoc(string strloc){strJsonTxtLoc = strloc;}
+    MSTS parse();
+    // log()
+
+  private:
     typedef struct interfaces {
         string name;
         string direction;
@@ -24,26 +32,11 @@ class ippsJson{
         vector< ippsInterf > interfaces;
     }ippsConfig;
 
-  boost::property_tree::ptree rootJson;
-  ippsConfig                  ippsConf;
-  string                      strJsonTxtLoc;
+    boost::property_tree::ptree rootJson;
+    ippsConfig                  ippsConf;
+    string                      strJsonTxtLoc;
 
-  public:
-    ippsJson(string jsonTxt)
-    {strJsonTxtLoc = jsonTxt;}
-    int parse();
-   // log()
 };
-
-/*
-
-class ippsCmd {
-
-  public:
-    parseCmd()
-    logging()
-};
-*/
 
 
 #endif /* _MPARSE_H_ */
