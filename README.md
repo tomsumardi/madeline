@@ -108,8 +108,11 @@ Note: per-component design details provided within design folder
  - any x86 laptop with 3 ethernet ports (mgmt,input,output)
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
-Reference to my old code ("C" and python code only): 
+Reference to my old code ("C" code only): 
 https://github.com/tomsumardi/laguna/tree/master/1.0/src
+
+Reference to my old code for gateway detection/discovery (python):
+https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_caching_1.0.0/usr/local/bin/transparent_caching/gwdisc.py
 
 license: TBD
 
