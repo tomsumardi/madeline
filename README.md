@@ -5,6 +5,10 @@
 - working on ipps (c++)....
 
 ## -------------------------------------------------------------
+## Pre-requisite through package manager 
+* gnome C library 2.46.2 (glib2)
+* C++ boost library 1.53.0 (boost-devel)
+
 ## Building and running...
 
 ### 1. How to build: Each components must be build separately. 
@@ -26,9 +30,9 @@ make
 * ipps:
 ```
 cd <install-home>/madeline/components/ipps
+make mostlyclean
 make clean
-make clean all
-make clean dist
+make distclean
 ```
 * cs: 
 * ms: 
@@ -104,7 +108,7 @@ Note: per-component design details provided within design folder
  - any x86 laptop with 3 ethernet ports (mgmt,input,output)
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
-Reference to my old code (al "C" code only): 
+Reference to my old code ("C" and python code only): 
 https://github.com/tomsumardi/laguna/tree/master/1.0/src
 
 license: TBD
