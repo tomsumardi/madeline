@@ -1,39 +1,29 @@
 #ifndef _MPARSE_H_
 #define _MPARSE_H_
 
-#include "../mutil/src/madeline.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/foreach.hpp>
 #include <sstream>
+#include <iostream>
+#include <fstream>
 #include <string>
-
-using namespace std;
-namespace ipps_proptree = boost::property_tree;
+#include "../mutil/src/madeline.h"
+#include <boost/foreach.hpp>
 
 class ippsJson{
 
   public:
-    ippsJson(){};
+    ippsJson()
+    {
+        strJsonTxt = "";
+        strJsonTxtLoc = "";
+    };
     void setJsonLoc(string strloc){strJsonTxtLoc = strloc;}
+    MSTS read();
     MSTS parse();
     // log()
 
   private:
-    typedef struct interfaces {
-        string name;
-        string direction;
-        vector< string > pcap_filters;
-        vector< string > l3_blacklists;
-    }ippsInterf;
-
-    typedef struct config{
-        string version;
-        vector< ippsInterf > interfaces;
-    }ippsConfig;
-
-    boost::property_tree::ptree rootJson;
-    ippsConfig                  ippsConf;
+    Document                    configDoc;
+    string                      strJsonTxt;
     string                      strJsonTxtLoc;
 
 };

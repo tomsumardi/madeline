@@ -12,6 +12,8 @@ AC_PROG_RANLIB
 PKG_PROG_PKG_CONFIG
 AC_CONFIG_MACRO_DIR([m4])
 
+AC_SUBST(CPPFLAGS, "-I ../../../etc/cpp")
+
 PKG_CHECK_MODULES([glib2], [glib-2.0 >= 2.42])
 
 # Checks for programs.

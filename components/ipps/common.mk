@@ -27,7 +27,7 @@ LDFLAGS_INC  	=
 
 #C init
 CFLAGS_DEFS    += -D_GNU_SOURCE
-CFLAGS_OPTS    += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declarations
+CFLAGS_OPTS    += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declarations 
 #C and C++ release vs debug build
 #ifdef RELEASE
 #	CFLAGS_OPTS    += -O3 -fdata-sections -ffunction-sections `pkg-config --cflags glib-2.0`
@@ -54,7 +54,7 @@ LDFLAGS_INC    += $(xml_LIBS) $(glib2_LIBS)
 #-------------------------------------------------------------------------
 # C++
 #-------------------------------------------------------------------------
-#LDFLAGS_INC     += -lstdc++ -lm -lboost_regex
+LDFLAGS_INC     += -lstdc++ -lm -lboost_regex -lboost_system
 
 #-------------------------------------------------------------------------
 # define compiler and linker flags

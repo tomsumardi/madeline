@@ -27,31 +27,20 @@ MSTS ippsBkgrnd::parse(int argc, char *argv[])
           _context = g_option_context_new ("- IPPS");
           if(NULL == _context)
           {
-              g_print ("option context create failure");
+              cout << boost::format("option context create failure\n");
               break;
           }
           g_option_context_add_main_entries (_context, entries, NULL);
           if (!g_option_context_parse (_context, &argc, &argv, &_error))
           {
-              g_print ("option parsing failed: %s\n", _error->message);
+              cout << boost::format("option parsing failed: %s\n") %_error->message;
               break;
           };
           _strHelpMenu = g_option_context_get_help(_context,TRUE, NULL);
           if(NULL == _strHelpMenu)
           {
-              g_print ("option get help failed");
+              cout << boost::format("option get help failed");
               break;
-          }
-          if(_strconfig != NULL)
-          {
-              //use c++ boost libary to parse json
-              config.jsonObj.setJsonLoc(_strconfig);
-              _sts = config.jsonObj.parse();
-              if(_sts != MDSUCCESS)
-              {
-                  g_print ("failed to parse json input file");
-                  break;
-              }
           }
           if(_verbose)
           {
@@ -60,6 +49,23 @@ MSTS ippsBkgrnd::parse(int argc, char *argv[])
           if(_standalone)
           {
               config.standalone = _standalone;
+          }
+          if(_strconfig != NULL)
+          {
+              //use c++ rapidJson libary to parse json
+              config.jsonObj.setJsonLoc(_strconfig);
+              _sts = config.jsonObj.read();
+              if(_sts != MDSUCCESS)
+              {
+                  cout << boost::format("failed to read json input file");
+                  break;
+              }
+              _sts = config.jsonObj.parse();
+              if(_sts != MDSUCCESS)
+              {
+                  cout << boost::format("failed to parse json input file");
+                  break;
+              }
           }
     }while(FALSE);
 
