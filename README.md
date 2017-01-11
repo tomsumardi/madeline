@@ -13,10 +13,21 @@
 
 ### 1. How to build: Each components must be build separately. 
 
+* mutil
+```
+cd <install-home>/madeline/components/etc/cpp/mutil/scripts
+./refresh-automake.sh
+cd <install-home>/madeline/components/etc/cpp/mutil
+make clean
+./configure
+make
+```
 * ipps:
 ```
+cd <install-home>/madeline/components/ipps/scripts
+./refresh-automake.sh
 cd <install-home>/madeline/components/ipps
-make clean all
+make clean
 ./configure
 make
 ```
@@ -27,12 +38,15 @@ make
 * ppp:
 
 ### 2. How to clean: Each components must be clean separately. 
+* mutil
+```
+cd <install-home>/madeline/components/etc/cpp/mutil
+make clean
+```
 * ipps:
 ```
 cd <install-home>/madeline/components/ipps
-make mostlyclean
 make clean
-make distclean
 ```
 * cs: 
 * ms: 
