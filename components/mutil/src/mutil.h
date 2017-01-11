@@ -3,5 +3,6 @@
 
 #include "madeline.h"
 #include "mutil.h"
+#include "mparse.h"
 
 #endif /* _MUTIL_H_ */

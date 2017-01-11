@@ -1,6 +1,6 @@
 #include "mparse.h"
 
-MSTS ippsMparse::read()
+MSTS mutilMparse::read()
 {
     MSTS    _sts = MDERROR;
 
@@ -27,7 +27,7 @@ MSTS ippsMparse::read()
     return _sts;
 }
 
-MSTS ippsMparse::parse()
+MSTS mutilMparse::parse()
 {
     MSTS    _sts = MDERROR;
     try
@@ -78,14 +78,14 @@ MSTS ippsMparse::parse()
 #include <boost/foreach.hpp>
 namespace ipps_proptree = boost::property_tree;
 
-int ippsMparse::parse()
+int mutilMparse::parse()
 {
     namespace ipps_proptree = boost::property_tree;
 
-    class ippsMparse{
+    class mutilMparse{
 
       public:
-        ippsMparse(){};
+        mutilMparse(){};
         void setstrJsonLoc(string strloc){strJsonLoc = strloc;}
         MSTS parse();
         // log()

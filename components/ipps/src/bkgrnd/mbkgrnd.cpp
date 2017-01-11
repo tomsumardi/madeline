@@ -1,4 +1,5 @@
 #include "mbkgrnd.h"
+#include "spdlog/spdlog.h"
 
 MSTS mBkgrndProcessCmdArgs(int argc, char *argv[],ipps* pIpps)
 {
@@ -51,7 +52,7 @@ MSTS mBkgrndProcessCmdArgs(int argc, char *argv[],ipps* pIpps)
           {
               //use c++ rapidJson libary to parse json
               BOOST_ASSERT(pIpps->getJsonDoc());
-              ippsMparse jsonParser(_strconfig,pIpps->getJsonDoc());
+              mutilMparse jsonParser(_strconfig,pIpps->getJsonDoc());
               _sts = jsonParser.read();
               if(_sts != MDSUCCESS)
               {

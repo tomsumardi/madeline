@@ -5,18 +5,18 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "src/ipps.h"
+#include "madeline.h"
 
-class ippsMparse{
+class mutilMparse{
 
   public:
-    ippsMparse()
+    mutilMparse()
     {
         strJsonTxt = "";
         strJsonLoc = "";
         pJsonDoc = NULL;
     };
-    ippsMparse(string strLoc,Document* pDoc)
+    mutilMparse(string strLoc,Document* pDoc)
     {
         strJsonTxt = "";
         strJsonLoc = strLoc;
