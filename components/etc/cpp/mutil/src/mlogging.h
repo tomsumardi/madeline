@@ -1,7 +1,7 @@
 #ifndef _LOGGINGX_H_
 #define _LOGGINGX_H_
 
-#include "src/ipps.h"
+#include "madeline.h"
 
 void logging_print(const char *str);
 

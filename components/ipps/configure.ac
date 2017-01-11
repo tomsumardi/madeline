@@ -44,7 +44,6 @@ AC_CONFIG_FILES([Makefile
                  scripts/Makefile
                  src/Makefile
                  src/bkgrnd/Makefile
-                 src/logging/Makefile
                  src/main/Makefile
                  src/pfilter/Makefile
                  src/thdmgmt/Makefile])

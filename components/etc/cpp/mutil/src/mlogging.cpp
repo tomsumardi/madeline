@@ -1,4 +1,4 @@
-#include "logging.h"
+#include "mlogging.h"
 using namespace std;
 
 void logging_print(const char *str)

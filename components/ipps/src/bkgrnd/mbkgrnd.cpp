@@ -1,5 +1,4 @@
 #include "mbkgrnd.h"
-#include "spdlog/spdlog.h"
 
 MSTS mBkgrndProcessCmdArgs(int argc, char *argv[],ipps* pIpps)
 {

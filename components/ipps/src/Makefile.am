@@ -1,1 +1,1 @@
-SUBDIRS=thdmgmt bkgrnd pfilter logging main
+SUBDIRS=thdmgmt bkgrnd pfilter main
