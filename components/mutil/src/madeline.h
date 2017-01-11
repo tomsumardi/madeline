@@ -12,6 +12,12 @@
 using namespace std;
 using namespace rapidjson;
 
+class madeline{
+    protected:
+        bool        bMstandalone;
+        bool        bMverbose;
+};
+
 #define MDERROR -1
 #define MDSUCCESS 0
 typedef int  MSTS;

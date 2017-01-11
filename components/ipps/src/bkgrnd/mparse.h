@@ -5,26 +5,31 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "../mutil/src/madeline.h"
-#include <boost/foreach.hpp>
+#include "src/ipps.h"
 
-class ippsJson{
+class ippsMparse{
 
   public:
-    ippsJson()
+    ippsMparse()
     {
         strJsonTxt = "";
-        strJsonTxtLoc = "";
+        strJsonLoc = "";
+        pJsonDoc = NULL;
     };
-    void setJsonLoc(string strloc){strJsonTxtLoc = strloc;}
+    ippsMparse(string strLoc,Document* pDoc)
+    {
+        strJsonTxt = "";
+        strJsonLoc = strLoc;
+        pJsonDoc = pDoc;
+    };
     MSTS read();
     MSTS parse();
     // log()
 
   private:
-    Document                    configDoc;
+    Document                    *pJsonDoc;
     string                      strJsonTxt;
-    string                      strJsonTxtLoc;
+    string                      strJsonLoc;
 
 };
 

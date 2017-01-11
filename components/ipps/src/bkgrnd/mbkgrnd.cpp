@@ -1,9 +1,6 @@
 #include "mbkgrnd.h"
 
-using namespace std;
-
-//glib C input argument parsing
-MSTS ippsBkgrnd::parse(int argc, char *argv[])
+MSTS mBkgrndProcessCmdArgs(int argc, char *argv[],ipps* pIpps)
 {
     MSTS                _sts = MDERROR;
     GError*             _error = NULL;
@@ -44,23 +41,24 @@ MSTS ippsBkgrnd::parse(int argc, char *argv[])
           }
           if(_verbose)
           {
-              config.verbose = _verbose;
+              pIpps->setVerbose(_verbose);
           }
           if(_standalone)
           {
-              config.standalone = _standalone;
+              pIpps->setStandalone(_standalone);
           }
           if(_strconfig != NULL)
           {
               //use c++ rapidJson libary to parse json
-              config.jsonObj.setJsonLoc(_strconfig);
-              _sts = config.jsonObj.read();
+              BOOST_ASSERT(pIpps->getJsonDoc());
+              ippsMparse jsonParser(_strconfig,pIpps->getJsonDoc());
+              _sts = jsonParser.read();
               if(_sts != MDSUCCESS)
               {
                   cout << boost::format("failed to read json input file");
                   break;
               }
-              _sts = config.jsonObj.parse();
+              _sts = jsonParser.parse();
               if(_sts != MDSUCCESS)
               {
                   cout << boost::format("failed to parse json input file");
@@ -70,6 +68,31 @@ MSTS ippsBkgrnd::parse(int argc, char *argv[])
     }while(FALSE);
 
     return _sts;
+}
+
+MSTS mBkgrndConfigurelogs(ipps* pIpps)
+{
+    return(MDSUCCESS);
+}
+
+MSTS mBkgrndConfigureComChannels(ipps* pIpps)
+{
+    return(MDSUCCESS);
+}
+
+MSTS mBkgrndConfigurePfring(ipps* pIpps)
+{
+    return(MDSUCCESS);
+}
+
+MSTS mBkgrndConfigureFilters(ipps* pIpps)
+{
+    return(MDSUCCESS);
+}
+
+MSTS mBkgrndConfigureThds(ipps* pIpps)
+{
+    return(MDSUCCESS);
 }
 
 void bkgrnd_print(const char *str)

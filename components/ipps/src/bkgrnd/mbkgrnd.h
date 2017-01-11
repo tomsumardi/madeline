@@ -8,30 +8,12 @@
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 
-class ippsBkgrnd {
-  public:
-    typedef struct config {
-        ippsJson      jsonObj;
-        bool          verbose;
-        bool          standalone;
-    }ippsConfig;
-    ippsBkgrnd()
-    {
-        config.verbose = false;
-        config.standalone = false;
-    };
-    MSTS parse(int argc, char *argv[]);
-    ippsConfig* getConfig(){return(&config);}
-  private:
-    ippsConfig config;
-    //ippsCmd   cmd;
-    //ippsPfring  pring;
-    //ippsThread  thread;
-};
-
-//#define JSON_PARSE_LOC "/home/tsumardi/madeline/components/cfg/examples/ipps.json"
-
-
+MSTS mBkgrndProcessCmdArgs(int argc, char *argv[], ipps* pIpps);
+MSTS mBkgrndConfigurelogs(ipps* pIpps);
+MSTS mBkgrndConfigureComChannels(ipps* pIpps);
+MSTS mBkgrndConfigurePfring(ipps* pIpps);
+MSTS mBkgrndConfigureFilters(ipps* pIpps);
+MSTS mBkgrndConfigureThds(ipps* pIpps);
 void bkgrnd_print(const char *str);
 
 #endif /* _MBKGRND_H_ */

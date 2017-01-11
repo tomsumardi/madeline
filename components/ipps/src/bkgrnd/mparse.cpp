@@ -1,6 +1,6 @@
 #include "mparse.h"
 
-MSTS ippsJson::read()
+MSTS ippsMparse::read()
 {
     MSTS    _sts = MDERROR;
 
@@ -8,7 +8,7 @@ MSTS ippsJson::read()
     {
         ifstream    _f;
         string      _strLine;
-        _f.open (strJsonTxtLoc);
+        _f.open (strJsonLoc);
         if (_f.is_open())
         {
             while(!_f.eof())
@@ -27,24 +27,24 @@ MSTS ippsJson::read()
     return _sts;
 }
 
-MSTS ippsJson::parse()
+MSTS ippsMparse::parse()
 {
     MSTS    _sts = MDERROR;
     try
     {
-        cout << boost::format("unmarshalling: %s\n") %strJsonTxtLoc;
+        cout << boost::format("unmarshalling: %s\n") %strJsonLoc;
         cout << boost::format("%s\n") %strJsonTxt;
 
-        configDoc.Parse(strJsonTxt.c_str());
-        BOOST_ASSERT(configDoc.IsObject());
+        pJsonDoc->Parse(strJsonTxt.c_str());
+        BOOST_ASSERT(pJsonDoc->IsObject());
 
-        BOOST_ASSERT(configDoc.HasMember("version"));
-        BOOST_ASSERT(configDoc["version"].IsString());
-        cout << boost::format("version = %s\n") %configDoc["version"].GetString();
+        BOOST_ASSERT(pJsonDoc->HasMember("version"));
+        BOOST_ASSERT((*pJsonDoc)["version"].IsString());
+        cout << boost::format("version = %s\n") %(*pJsonDoc)["version"].GetString();
 
-        const Value& intfList = configDoc["interfaces"];
-        BOOST_ASSERT(configDoc.HasMember("interfaces"));
-        BOOST_ASSERT(configDoc["interfaces"].IsArray());
+        const Value& intfList = (*pJsonDoc)["interfaces"];
+        BOOST_ASSERT(pJsonDoc->HasMember("interfaces"));
+        BOOST_ASSERT((*pJsonDoc)["interfaces"].IsArray());
 
         // rapidjson uses SizeType instead of size_t.
         // name and direction are required values
@@ -78,15 +78,15 @@ MSTS ippsJson::parse()
 #include <boost/foreach.hpp>
 namespace ipps_proptree = boost::property_tree;
 
-int ippsJson::parse()
+int ippsMparse::parse()
 {
     namespace ipps_proptree = boost::property_tree;
 
-    class ippsJson{
+    class ippsMparse{
 
       public:
-        ippsJson(){};
-        void setJsonLoc(string strloc){strJsonTxtLoc = strloc;}
+        ippsMparse(){};
+        void setstrJsonLoc(string strloc){strJsonLoc = strloc;}
         MSTS parse();
         // log()
 
@@ -105,7 +105,7 @@ int ippsJson::parse()
 
         boost::property_tree::ptree rootJson;
         ippsConfig                  ippsConf;
-        string                      strJsonTxtLoc;
+        string                      strJsonLoc;
 
     };
 
@@ -113,11 +113,11 @@ int ippsJson::parse()
     {
 
 
-        //BOOST_ASSERT(strJsonTxtLoc)
+        //BOOST_ASSERT(strJsonLoc)
         //Might change below to c++ rapidJson DOM library
 
-        cout << "unmarshalling:" << strJsonTxtLoc << "\n";
-        ipps_proptree::read_json(strJsonTxtLoc, rootJson);
+        cout << "unmarshalling:" << strJsonLoc << "\n";
+        ipps_proptree::read_json(strJsonLoc, rootJson);
 
         // Iterator over all interfaces
         for (ipps_proptree::ptree::value_type &lstintf : rootJson.get_child("interfaces"))
