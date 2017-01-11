@@ -8,4 +8,4 @@ ipps_LDADD = \
              $(top_srcdir)/src/bkgrnd/libbkgrnd.a \
              $(top_srcdir)/src/logging/liblogging.a \
              $(top_srcdir)/src/pfilter/libpfilter.a \
-             $(top_srcdir)/../mutil/src/libmutil.a
+             $(top_srcdir)/../etc/cpp/mutil/src/libmutil.a

@@ -1,0 +1,5 @@
+autoscan: warning: missing AC_CHECK_HEADER_STDBOOL wanted by: 
+	src/madeline.h:17
+	src/madeline.h:18
+autoscan: warning: missing AC_TYPE_SIZE_T wanted by: 
+	src/mparse.cpp:49
