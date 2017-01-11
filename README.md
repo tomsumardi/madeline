@@ -129,8 +129,8 @@ https://github.com/tomsumardi/laguna/tree/master/1.0/src
 https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_caching_1.0.0/usr/local/bin/transparent_caching/gwdisc.py
 
 Coding guidelines for C++:
-- https://google.github.io/styleguide/cppguide.html (
-- No exceptions, please read google cpp guide above. 
+- https://google.github.io/styleguide/cppguide.html
+- No C++ exceptions handling, do simple C style error return value (read google guidelines for C++ above)
 - shallow inheritance (3 level max)
 - ?
 
