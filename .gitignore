@@ -19,8 +19,13 @@ components/ipps/config.log
 components/ipps/configure
 components/ipps/src/main/ipps
 components/ipps/stamp-h1
+components/ipps/configure.scan
+components/ipps/autoscan.log
+components/ipps/ipps-1.0.0.tar.gz
 #mutil post build
-components/mutil/config.h
-components/mutil/config.log
-components/mutil/stamp-h1
-
+components/etc/cpp/mutil/config.h
+components/etc/cpp/mutil/config.log
+components/etc/cpp/mutil/configure
+components/etc/cpp/mutil/stamp-h1
+components/etc/cpp/mutil/configure.scan
+components/etc/cpp/mutil/autoscan.log

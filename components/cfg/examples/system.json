@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "log_location": "/tmp",
+  "ipps": {
+    "pktproc_threads": 1  
+  }
+}
+

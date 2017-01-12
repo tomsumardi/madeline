@@ -43,7 +43,7 @@ AC_CONFIG_FILES([Makefile
                  man/Makefile
                  scripts/Makefile
                  src/Makefile
-                 src/bkgrnd/Makefile
+                 src/ipps/Makefile
                  src/main/Makefile
                  src/pfilter/Makefile
                  src/thdmgmt/Makefile])

@@ -1,7 +1,7 @@
 #ifndef _PFILTER_H_
 #define _PFILTER_H_
 
-#include "src/ipps.h"
+#include "src/ipps/ipps.h"
 
 void pfilter_print(const char *str);
 

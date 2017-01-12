@@ -4,7 +4,7 @@ set -x
 
 cd ../
 autoscan
-diff configure.ac configure.scan
+#diff configure.ac configure.scan
 aclocal
 autoheader 
 autoconf

@@ -24,6 +24,7 @@ class mutilMparse{
     };
     MSTS read();
     MSTS parse();
+    MSTS processJson();
     // log()
 
   private:

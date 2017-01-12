@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "System Config",
+  "description": "system configuration",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "The unique version of system configuration",
+      "type": "string"
+    },
+    "log_location": {
+      "description": "log directory location",
+      "type": "string"
+    },
+    "ipps": {
+      "type": "object",
+      "properties": {
+        "pktproc_threads": {
+          "description": "Interface Name",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pktproc_threads"
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "log_location",
+    "ipps"
+  ]
+}

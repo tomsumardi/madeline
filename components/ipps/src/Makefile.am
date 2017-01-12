@@ -1,1 +1,1 @@
-SUBDIRS=thdmgmt bkgrnd pfilter main
+SUBDIRS=thdmgmt ipps pfilter main

@@ -38,37 +38,34 @@ MSTS mutilMparse::parse()
         pJsonDoc->Parse(strJsonTxt.c_str());
         BOOST_ASSERT(pJsonDoc->IsObject());
 
-        BOOST_ASSERT(pJsonDoc->HasMember("version"));
-        BOOST_ASSERT((*pJsonDoc)["version"].IsString());
-        cout << boost::format("version = %s\n") %(*pJsonDoc)["version"].GetString();
-
-        const Value& intfList = (*pJsonDoc)["interfaces"];
-        BOOST_ASSERT(pJsonDoc->HasMember("interfaces"));
-        BOOST_ASSERT((*pJsonDoc)["interfaces"].IsArray());
-
-        // rapidjson uses SizeType instead of size_t.
-        // name and direction are required values
-        for (SizeType i = 0; i < intfList.Size(); i++)
-        {
-            const Value& intfElm = intfList[i];
-
-            if(intfElm.HasMember("name"))
-            {
-                BOOST_ASSERT(intfElm["name"].IsString());
-                cout << boost::format("name = %s\n") %intfElm["name"].GetString();
-            }
-            if(intfElm.HasMember("direction"))
-            {
-                BOOST_ASSERT(intfElm["direction"].IsString());
-                cout << boost::format("direction = %s\n") %intfElm["direction"].GetString();
-            }
-        }
         _sts = MDSUCCESS;
     }
     catch (exception const& e)
     {
       cerr << e.what() << endl;
     }
+    return _sts;
+}
+
+MSTS mutilMparse::processJson()
+{
+    MSTS    _sts = MDERROR;
+    do
+    {
+        _sts = mutilMparse::read();
+         if(_sts != MDSUCCESS)
+         {
+             cout << boost::format("failed to read json input file");
+             break;
+         }
+         _sts = mutilMparse::parse();
+         if(_sts != MDSUCCESS)
+         {
+             cout << boost::format("failed to parse json input file");
+             break;
+         }
+    }while(FALSE);
+
     return _sts;
 }
 
