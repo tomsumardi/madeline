@@ -5,11 +5,6 @@
 - working on ipps (c++)....
 
 ## -------------------------------------------------------------
-## Pre-requisite through package manager 
-* gnome C library 2.46.2 (glib2)
-* C++ boost library 1.53.0 (boost-devel)
-
-## -------------------------------------------------------------
 ## Project Intro and Vision:
 Madeline is high performance OTT Video caching ecosystem, which includes simple REST API endpoint, packet routing engine and video caching server.
 The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of storage backend such as ceph.
@@ -71,6 +66,11 @@ Coding guidelines for C++:
 - function should have one entry and one exit point
 
 license: TBD
+
+## -------------------------------------------------------------
+## Pre-requisite through package manager 
+* gnome C library 2.46.2 (glib2)
+* C++ boost library 1.53.0 (boost-devel)
 
 ## Building and running...
 
