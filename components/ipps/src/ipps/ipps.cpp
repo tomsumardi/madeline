@@ -1,6 +1,6 @@
 #include "ipps.h"
 
-MSTS ipps::ProcessCmdArgs(int argc, char *argv[])
+MSTS ipps::processCmdArgs(int argc, char *argv[])
 {
     MSTS                _sts = MDERROR;
     GError*             _error = NULL;
@@ -76,11 +76,7 @@ MSTS ipps::ProcessCmdArgs(int argc, char *argv[])
           }
           if(_strIppsConfig && _strSysConfig)
           {
-              _sts = ipps::validateIppsJsonDocs();
-              if(MDSUCCESS != _sts)
-              {
-                  break;
-              }
+              ipps::validateIppsJsonDocs();
           }
           if((_strIppsConfig && !_strSysConfig) ||
              (!_strIppsConfig && _strSysConfig))
@@ -94,8 +90,9 @@ MSTS ipps::ProcessCmdArgs(int argc, char *argv[])
     return _sts;
 }
 
-MSTS ipps::validateIppsJsonDocs()
+void ipps::validateIppsJsonDocs()
 {
+    cout << boost::format("info, validating ipps config\n");
     // TDOD: validate Document ippsDoc, more validation needed
     BOOST_ASSERT(ippsDoc.HasMember("version"));
     BOOST_ASSERT(ippsDoc["version"].IsString());
@@ -122,42 +119,111 @@ MSTS ipps::validateIppsJsonDocs()
             //cout << boost::format("direction = %s\n") %intfElm["direction"].GetString();
         }
     }
-    // TODO: validate Document sysDoc here
 
-    return MDSUCCESS;
+    cout << boost::format("info, validating system config\n");
+    // validate Document systemDoc here
+    BOOST_ASSERT(systemDoc.HasMember("version"));
+    BOOST_ASSERT(systemDoc["version"].IsString());
+
+    BOOST_ASSERT(systemDoc.HasMember("ipps"));
+    const Value& ipps = systemDoc["ipps"];
+
+    BOOST_ASSERT(ipps.HasMember("pktproc_threads"));
+    BOOST_ASSERT(ipps["pktproc_threads"].IsNumber());
+
+    const Value& log = ipps["log"];
+    BOOST_ASSERT(log.HasMember("location"));
+    BOOST_ASSERT(log["location"].IsString());
+    BOOST_ASSERT(log.HasMember("size_mb"));
+    BOOST_ASSERT(log["size_mb"].IsNumber());
+    BOOST_ASSERT(log.HasMember("num"));
+    BOOST_ASSERT(log["num"].IsNumber());
+    BOOST_ASSERT(log.HasMember("level"));
+    BOOST_ASSERT(log["level"].IsString());
+
 }
 
-MSTS ipps::Configurelogs()
+MSTS ipps::configurelogs()
 {
+    MSTS                _sts = MDERROR;
+
     do
     {
+        spdlog::level::level_enum   _lvl;
+        string                      _strExt = "";
+        string                      _strPath = "";
+        vector<string>              _vStrLocation;
+
+        const Value& ipps = systemDoc["ipps"];
+        const Value& log = ipps["log"];
+
+        if(boost::iequals(log["level"].GetString(), "trace"))
+            _lvl = MD_LTRACE;
+        else if(boost::iequals(log["level"].GetString(), "debug"))
+            _lvl = MD_LDEBUG;
+        else if(boost::iequals(log["level"].GetString(), "info"))
+            _lvl = MD_LINFO;
+        else if(boost::iequals(log["level"].GetString(), "warn"))
+            _lvl = MD_LWARN;
+        else if(boost::iequals(log["level"].GetString(), "error"))
+            _lvl = MD_LERROR;
+        else if(boost::iequals(log["level"].GetString(), "crit"))
+            _lvl = MD_LCRIT;
+        else if(boost::iequals(log["level"].GetString(), "off"))
+            _lvl = MD_LOFF;
+        else
+        {
+            pMIppsLog->error("invalid log level input: \"{}\" valid inputs: trace,debug,info,warn,error,crit",log["level"].GetString());
+            break;
+        }
+
+        // destroy all shared log pointers and recreate.
         spdlog::drop_all();
 
-        mlogging _ippsmlog("/tmp/ipps/ipps", "log", MD_LDEBUG);
-        _ippsmlog.addRotate(10*1024*1024,5);
-        std::shared_ptr<spdlog::logger> cmLog = _ippsmlog.getRotateLog();
-        cmLog->error("Some log message");
+        //Get path and extension
+        string _location(log["location"].GetString());
+        boost::split(_vStrLocation,_location,boost::is_any_of("."));
+        if(_vStrLocation.size() > 1)
+        {
+            for (size_t _i = 0; _i < _vStrLocation.size()-1; _i++)
+                _strPath += _vStrLocation[_i];
+            _strExt = _vStrLocation[_vStrLocation.size()-1];
+        }
+        else
+        {
+            _strPath = _location;
+            _strExt = "log";
+        }
+        mlogging _ippsmlog(_strPath, _strExt, _lvl);
+        _sts = _ippsmlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
+        if(MDSUCCESS != _sts)
+        {
+            pMIppsLog->error("unable to add rotating log");
+            break;
+        }
+        pMIppsLog = _ippsmlog.getRotateLog();
+        _sts = MDSUCCESS;
     }while(FALSE);
 
-    return(MDSUCCESS);
+    return(_sts);
 }
 
-MSTS ipps::ConfigureComChannels()
+MSTS ipps::configureComChannels()
 {
     return(MDSUCCESS);
 }
 
-MSTS ipps::ConfigurePfring()
+MSTS ipps::configurePfring()
 {
     return(MDSUCCESS);
 }
 
-MSTS ipps::ConfigureFilters()
+MSTS ipps::configureFilters()
 {
     return(MDSUCCESS);
 }
 
-MSTS ipps::ConfigureThds()
+MSTS ipps::configureThds()
 {
     return(MDSUCCESS);
 }

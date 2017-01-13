@@ -5,7 +5,7 @@
 
 //Default systemwide error value, which can be
 //set to other level at runtime
-#define LOG_IPPS_LVL    MD_LERROR
+#define LOG_IPPS_LVL    MD_LTRACE
 #define LOG_IPPS_DNAME  string("/tmp/ipps")
 #define LOG_IPPS_FNAME  string("ipps")
 #define LOG_IPPS_FEXT   string("log")

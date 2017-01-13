@@ -8,6 +8,7 @@
 #include <iostream>
 #include <glib.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 
@@ -23,7 +24,6 @@ class ipps : public madeline{
         try
         {
             /* stop here if constructor failed */
-            std::shared_ptr<spdlog::logger> pMIppsLog;
             boost::filesystem::path dir(strDname);
             boost::filesystem::create_directories(dir);
             //setup logging
@@ -33,6 +33,7 @@ class ipps : public madeline{
             //track the sys log
             pMIppsLog = _ippsmlog.getRotateLog();
             BOOST_ASSERT(pMIppsLog);
+            pMIppsLog->flush_on(spdlog::level::trace);
         }
         catch (exception const& e)
         {
@@ -41,19 +42,20 @@ class ipps : public madeline{
         }
     };
     Document* getIppsJsonDoc() {return(&ippsDoc);}
-    MSTS validateIppsJsonDocs();
+    void validateIppsJsonDocs();
     Document* getSysJsonDoc() {return(&systemDoc);}
+    std::shared_ptr<spdlog::logger> getSysLogHandler(){return(pMIppsLog);}
     bool getStandalone() {return(bMstandalone);}
     void setStandalone(bool bStandalone) {bMstandalone = bStandalone;}
     bool getVerbose() {return(bMverbose);}
     void setVerbose(bool bVerbose) {bMverbose = bVerbose;}
     /* Configure */
-    MSTS ProcessCmdArgs(int argc, char *argv[]);
-    MSTS Configurelogs();
-    MSTS ConfigureComChannels();
-    MSTS ConfigurePfring();
-    MSTS ConfigureFilters();
-    MSTS ConfigureThds();
+    MSTS processCmdArgs(int argc, char *argv[]);
+    MSTS configurelogs();
+    MSTS configureComChannels();
+    MSTS configurePfring();
+    MSTS configureFilters();
+    MSTS configureThds();
   private:
     std::shared_ptr<spdlog::logger>     pMIppsLog;
     Document                            ippsDoc;
