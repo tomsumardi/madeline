@@ -131,8 +131,10 @@ MSTS ipps::Configurelogs()
 {
     do
     {
-        mlogging _ippsmlog("/tmp/test", "log", MD_LDEBUG);
-        _ippsmlog.addRotate(1024*1024,5);
+        spdlog::drop_all();
+
+        mlogging _ippsmlog("/tmp/ipps/ipps", "log", MD_LDEBUG);
+        _ippsmlog.addRotate(10*1024*1024,5);
         std::shared_ptr<spdlog::logger> cmLog = _ippsmlog.getRotateLog();
         cmLog->error("Some log message");
     }while(FALSE);

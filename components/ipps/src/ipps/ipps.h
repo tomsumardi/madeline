@@ -13,11 +13,32 @@
 
 class ipps : public madeline{
   public:
-    ipps(string path)
+    ipps(string strDname,
+         string strFname,
+         string strFext,
+         spdlog::level::level_enum eLvl,
+         int ifsize,
+         int ifnum)
     {
-        setVerbose(false);setStandalone(false);
-        boost::filesystem::path dir(path);
-        BOOST_ASSERT(boost::filesystem::create_directory(dir));
+        try
+        {
+            /* stop here if constructor failed */
+            std::shared_ptr<spdlog::logger> pMIppsLog;
+            boost::filesystem::path dir(strDname);
+            boost::filesystem::create_directories(dir);
+            //setup logging
+            //hardcode location for systemwide log location for now
+            mlogging _ippsmlog(strDname+"/"+strFname, strFext, eLvl);
+            BOOST_ASSERT(MDSUCCESS == _ippsmlog.addRotate(ifsize,ifnum));
+            //track the sys log
+            pMIppsLog = _ippsmlog.getRotateLog();
+            BOOST_ASSERT(pMIppsLog);
+        }
+        catch (exception const& e)
+        {
+          cerr << e.what() << endl;
+          BOOST_ASSERT(NULL);
+        }
     };
     Document* getIppsJsonDoc() {return(&ippsDoc);}
     MSTS validateIppsJsonDocs();
@@ -34,8 +55,9 @@ class ipps : public madeline{
     MSTS ConfigureFilters();
     MSTS ConfigureThds();
   private:
-    Document    ippsDoc;
-    Document    systemDoc;
+    std::shared_ptr<spdlog::logger>     pMIppsLog;
+    Document                            ippsDoc;
+    Document                            systemDoc;
     //ippsPfring  pring;
     //ippsThread  thread;
 };

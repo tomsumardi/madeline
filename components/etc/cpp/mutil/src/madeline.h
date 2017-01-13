@@ -8,6 +8,12 @@
 using namespace std;
 
 class madeline{
+    public:
+        madeline()
+        {
+            bMstandalone = false;
+            bMverbose = false;
+        }
     protected:
         bool        bMstandalone;
         bool        bMverbose;
