@@ -46,6 +46,7 @@ Note: per-component design details provided within design folder
  - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
  - PPP: https://github.com/tomsumardi/madeline/wiki/PPP
  - PHS: https://github.com/tomsumardi/madeline/wiki/PHS
+ - JSON schema and examples: https://github.com/tomsumardi/madeline/wiki/JSON-schemas-and-examples
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
