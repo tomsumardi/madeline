@@ -21,11 +21,14 @@ class mutilMparse{
         strJsonLoc = "";
         pJsonDoc = NULL;
     };
-    mutilMparse(string strLoc,Document* pDoc)
+    mutilMparse(string strLoc,
+            Document* pDoc,
+            std::shared_ptr<spdlog::logger> pLog)
     {
         strJsonTxt = "";
         strJsonLoc = strLoc;
         pJsonDoc = pDoc;
+        pMIppsLog = pLog;
     };
     MSTS read();
     MSTS parse();
@@ -33,9 +36,10 @@ class mutilMparse{
     // log()
 
   private:
-    Document                    *pJsonDoc;
-    string                      strJsonTxt;
-    string                      strJsonLoc;
+    std::shared_ptr<spdlog::logger>     pMIppsLog;
+    Document                            *pJsonDoc;
+    string                              strJsonTxt;
+    string                              strJsonLoc;
 
 };
 

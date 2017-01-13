@@ -26,19 +26,19 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           _context = g_option_context_new ("- IPPS");
           if(NULL == _context)
           {
-              cout << boost::format("option context create failure\n");
+              pMIppsLog->error("option context create failure");
               break;
           }
           g_option_context_add_main_entries (_context, entries, NULL);
           if (!g_option_context_parse (_context, &argc, &argv, &_error))
           {
-              cout << boost::format("option parsing failed: %s\n") %_error->message;
+              pMIppsLog->error("option parsing failed: {}",_error->message);
               break;
           };
           _strHelpMenu = g_option_context_get_help(_context,TRUE, NULL);
           if(NULL == _strHelpMenu)
           {
-              cout << boost::format("option get help failed");
+              pMIppsLog->error("option get help failed");
               break;
           }
           if(_bVerbose)
@@ -54,11 +54,11 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           {
               //use c++ rapidJson libary to parse json
               BOOST_ASSERT(ipps::getIppsJsonDoc());
-              mutilMparse jsonParser(_strIppsConfig,ipps::getIppsJsonDoc());
+              mutilMparse jsonParser(_strIppsConfig,ipps::getIppsJsonDoc(),pMIppsLog);
               _sts = jsonParser.processJson();
               if(MDSUCCESS != _sts)
               {
-                  cout << boost::format("failed to parse json file, %s\n") %_strIppsConfig;
+                  pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
                   break;
               }
           }
@@ -66,11 +66,11 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           {
               //use c++ rapidJson libary to parse json
               BOOST_ASSERT(ipps::getSysJsonDoc());
-              mutilMparse jsonParser(_strSysConfig,ipps::getSysJsonDoc());
+              mutilMparse jsonParser(_strSysConfig,ipps::getSysJsonDoc(),pMIppsLog);
               _sts = jsonParser.processJson();
               if(MDSUCCESS != _sts)
               {
-                  cout << boost::format("failed to parse json file, %s\n") %_strSysConfig;
+                  pMIppsLog->error("failed to parse json file, {}",_strSysConfig);
                   break;
               }
           }
@@ -81,8 +81,8 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           if((_strIppsConfig && !_strSysConfig) ||
              (!_strIppsConfig && _strSysConfig))
           {
-              cout << boost::format("error, you must specify -i and -s ,\
-                                    if one argument is being specified\n");
+              pMIppsLog->error("error, you must specify -i and -s ,\
+                                    if one argument is being specified");
           }
 
     }while(FALSE);
@@ -92,7 +92,7 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
 
 void ipps::validateIppsJsonDocs()
 {
-    cout << boost::format("info, validating ipps config\n");
+    pMIppsLog->debug("validating ipps config");
     // TDOD: validate Document ippsDoc, more validation needed
     BOOST_ASSERT(ippsDoc.HasMember("version"));
     BOOST_ASSERT(ippsDoc["version"].IsString());
@@ -120,7 +120,7 @@ void ipps::validateIppsJsonDocs()
         }
     }
 
-    cout << boost::format("info, validating system config\n");
+    pMIppsLog->debug("validating system config");
     // validate Document systemDoc here
     BOOST_ASSERT(systemDoc.HasMember("version"));
     BOOST_ASSERT(systemDoc["version"].IsString());
@@ -173,7 +173,8 @@ MSTS ipps::configurelogs()
             _lvl = MD_LOFF;
         else
         {
-            pMIppsLog->error("invalid log level input: \"{}\" valid inputs: trace,debug,info,warn,error,crit",log["level"].GetString());
+            pMIppsLog->error("invalid log level input: \"{}\" valid inputs: "\
+                    "trace,debug,info,warn,error,crit",log["level"].GetString());
             break;
         }
 
@@ -197,10 +198,7 @@ MSTS ipps::configurelogs()
         mlogging _ippsmlog(_strPath, _strExt, _lvl);
         _sts = _ippsmlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
         if(MDSUCCESS != _sts)
-        {
-            pMIppsLog->error("unable to add rotating log");
             break;
-        }
         pMIppsLog = _ippsmlog.getRotateLog();
         _sts = MDSUCCESS;
     }while(FALSE);
@@ -230,5 +228,5 @@ MSTS ipps::configureThds()
 
 void ipps_print(const char *str)
 {
-    cout << "ipps:" << str << endl;
+    //cout << "ipps:" << str << endl;
 }

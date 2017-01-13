@@ -32,8 +32,8 @@ MSTS mutilMparse::parse()
     MSTS    _sts = MDERROR;
     try
     {
-        cout << boost::format("unmarshalling: %s\n") %strJsonLoc;
-        cout << boost::format("%s\n") %strJsonTxt;
+        pMIppsLog->debug("unmarshalling: {}",strJsonLoc);
+        pMIppsLog->debug("{}",strJsonTxt);
 
         pJsonDoc->Parse(strJsonTxt.c_str());
         BOOST_ASSERT(pJsonDoc->IsObject());
@@ -55,13 +55,13 @@ MSTS mutilMparse::processJson()
         _sts = mutilMparse::read();
          if(_sts != MDSUCCESS)
          {
-             cout << boost::format("failed to read json input file");
+             pMIppsLog->debug("failed to read json input file");
              break;
          }
          _sts = mutilMparse::parse();
          if(_sts != MDSUCCESS)
          {
-             cout << boost::format("failed to parse json input file");
+             pMIppsLog->debug("failed to parse json input file");
              break;
          }
     }while(FALSE);

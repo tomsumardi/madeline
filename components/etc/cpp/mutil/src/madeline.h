@@ -4,6 +4,7 @@
 #include <glib.h>
 #include <boost/assert.hpp>
 #include <boost/format.hpp>
+#include "spdlog/spdlog.h"
 
 using namespace std;
 

@@ -23,5 +23,5 @@ MSTS mlogging::addRotate(int ifsize, int ifrotnum)
 
 void logging_print(const char *str)
 {
-    cout << "logging:" << str << endl;
+    //cout << "logging:" << str << endl;
 }
