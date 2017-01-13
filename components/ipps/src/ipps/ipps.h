@@ -7,12 +7,18 @@
 #include "mthreads.h"
 #include <iostream>
 #include <glib.h>
+#include <boost/filesystem.hpp>
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 
 class ipps : public madeline{
   public:
-    ipps(){setVerbose(false);setStandalone(false);};
+    ipps(string path)
+    {
+        setVerbose(false);setStandalone(false);
+        boost::filesystem::path dir(path);
+        BOOST_ASSERT(boost::filesystem::create_directory(dir));
+    };
     Document* getIppsJsonDoc() {return(&ippsDoc);}
     MSTS validateIppsJsonDocs();
     Document* getSysJsonDoc() {return(&systemDoc);}

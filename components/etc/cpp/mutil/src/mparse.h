@@ -1,11 +1,16 @@
 #ifndef _MPARSE_H_
 #define _MPARSE_H_
 
+#include "madeline.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "madeline.h"
+
+using namespace rapidjson;
 
 class mutilMparse{
 
