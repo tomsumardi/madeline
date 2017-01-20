@@ -54,7 +54,7 @@ Note: per-component design details provided within design folder
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
 ### My Old Code References:
-* trans cache ("C" code): 
+* trans cache ("C" and Makefile code): 
 https://github.com/tomsumardi/laguna/tree/master/1.0/src
 * gateway discovery (python):
 https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_caching_1.0.0/usr/local/bin/transparent_caching/gwdisc.py
@@ -115,18 +115,17 @@ make clean
 ### 3. How to run: Each components must be run separately. 
 * ipps: 
 ```
-cd <install-home>/madeline/components/ipps
-ipps -h
 Usage:
   ipps [OPTION...] - IPPS
 
 Help Options:
-  -h, --help            Show help options
+  -h, --help              Show help options
 
 Application Options:
-  -v, --verbose         verbose
-  -s, --standalone      standalone, no MS
-  -c, --config=file     json config file
+  -v, --verbose           verbose
+  -a, --standalone        standalone, no MS
+  -i, --ippsconf=file     ipps config
+  -s, --sysconf=file      system config
 ```
 * cs: 
 * ms: 
