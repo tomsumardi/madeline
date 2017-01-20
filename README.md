@@ -5,76 +5,6 @@
 - working on ipps (c++)....
 
 ## -------------------------------------------------------------
-## Pre-requisite through package manager 
-* gnome C library 2.46.2 (glib2)
-* C++ boost library 1.53.0 (boost-devel)
-
-## Building and running...
-
-### 1. How to build: Each components must be build separately. 
-
-* mutil
-```
-cd <install-home>/madeline/components/etc/cpp/mutil/scripts
-./refresh-automake.sh
-cd <install-home>/madeline/components/etc/cpp/mutil
-make clean
-./configure
-make
-```
-* ipps:
-```
-cd <install-home>/madeline/components/ipps/scripts
-./refresh-automake.sh
-cd <install-home>/madeline/components/ipps
-make clean
-./configure
-make
-```
-
-* cs: 
-* ms: 
-* phs:
-* ppp:
-
-### 2. How to clean: Each components must be clean separately. 
-* mutil
-```
-cd <install-home>/madeline/components/etc/cpp/mutil
-make clean
-```
-* ipps:
-```
-cd <install-home>/madeline/components/ipps
-make clean
-```
-* cs: 
-* ms: 
-* phs:
-* ppp:
-
-### 2. How to run: Each components must be run separately. 
-* ipps: 
-```
-cd <install-home>/madeline/components/ipps
-ipps -h
-Usage:
-  ipps [OPTION...] - IPPS
-
-Help Options:
-  -h, --help            Show help options
-
-Application Options:
-  -v, --verbose         verbose
-  -s, --standalone      standalone, no MS
-  -c, --config=file     json config file
-```
-* cs: 
-* ms: 
-* phs:
-* ppp:
-
-## -------------------------------------------------------------
 ## Project Intro and Vision:
 Madeline is high performance OTT Video caching ecosystem, which includes simple REST API endpoint, packet routing engine and video caching server.
 The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of storage backend such as ceph.
@@ -111,6 +41,7 @@ Note: per-component design details provided within design folder
  - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
  - PPP: https://github.com/tomsumardi/madeline/wiki/PPP
  - PHS: https://github.com/tomsumardi/madeline/wiki/PHS
+ - JSON schema and examples: https://github.com/tomsumardi/madeline/wiki/JSON-schemas-and-examples
 
 * Test (anything non-https):
  - caching espn, amazon streaming, HBOgo, dailymotion, netflix (if possible), etc
@@ -132,6 +63,79 @@ Coding guidelines for C++:
 - https://google.github.io/styleguide/cppguide.html
 - No C++ exceptions handling, do simple C style error return value (read google guidelines for C++ above)
 - shallow inheritance (3 level max)
-- ?
+- function should have one entry and one exit point
 
 license: TBD
+
+## -------------------------------------------------------------
+## Pre-requisite through package manager 
+* gnome C library 2.46.2 (glib2)
+* C++ boost library 1.53.0 (boost-devel)
+
+## Building and running...
+
+### 1. How to build: Each components must be build separately. 
+
+* mutil
+```
+cd <install-home>/madeline/components/etc/cpp/mutil
+make clean
+./configure
+make
+```
+* ipps:
+```
+cd <install-home>/madeline/components/ipps
+make clean
+./configure
+make
+```
+
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+### 2. How to clean: Each components must be clean separately. 
+* mutil
+```
+cd <install-home>/madeline/components/etc/cpp/mutil
+make clean
+```
+* ipps:
+```
+cd <install-home>/madeline/components/ipps
+make clean
+```
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+### 3. How to run: Each components must be run separately. 
+* ipps: 
+```
+cd <install-home>/madeline/components/ipps
+ipps -h
+Usage:
+  ipps [OPTION...] - IPPS
+
+Help Options:
+  -h, --help            Show help options
+
+Application Options:
+  -v, --verbose         verbose
+  -s, --standalone      standalone, no MS
+  -c, --config=file     json config file
+```
+* cs: 
+* ms: 
+* phs:
+* ppp:
+
+### 4. build notes:
+if unable to build, please do below:
+```
+cd <install-home>/madeline/components/ipps/scripts
+./refresh-automake.sh
+```
