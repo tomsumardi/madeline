@@ -76,13 +76,15 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           }
           if(_strIppsConfig && _strSysConfig)
           {
-              ipps::validateIppsJsonDocs();
+              if(ipps::validateIppsJsonDocs())
+                break;
           }
           if((_strIppsConfig && !_strSysConfig) ||
              (!_strIppsConfig && _strSysConfig))
           {
               pMIppsLog->error("error, you must specify -i and -s ,\
                                     if one argument is being specified");
+              break;
           }
 
     }while(FALSE);
@@ -90,8 +92,10 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
     return _sts;
 }
 
-void ipps::validateIppsJsonDocs()
+MSTS ipps::validateIppsJsonDocs()
 {
+    MSTS    _sts = MDERROR;
+   
     pMIppsLog->debug("validating ipps config");
     // TDOD: validate Document ippsDoc, more validation needed
     BOOST_ASSERT(ippsDoc.HasMember("version"));
@@ -121,6 +125,7 @@ void ipps::validateIppsJsonDocs()
     }
 
     pMIppsLog->debug("validating system config");
+
     // validate Document systemDoc here
     BOOST_ASSERT(systemDoc.HasMember("version"));
     BOOST_ASSERT(systemDoc["version"].IsString());
@@ -141,9 +146,22 @@ void ipps::validateIppsJsonDocs()
     BOOST_ASSERT(log.HasMember("level"));
     BOOST_ASSERT(log["level"].IsString());
 
+    //TODO: Validate input values here
+    do
+    {
+        if(ipps["pktproc_threads"].GetInt() <= 0)
+        {
+            pMIppsLog->error("threads <= 0");
+            break;
+        } 
+    }while(FALSE);
+
+    _sts = MDSUCCESS;
+
+   return(_sts);
 }
 
-MSTS ipps::configurelogs()
+MSTS ipps::configureSysLog()
 {
     MSTS                _sts = MDERROR;
 
@@ -177,11 +195,14 @@ MSTS ipps::configurelogs()
                     "trace,debug,info,warn,error,crit",log["level"].GetString());
             break;
         }
+        //Set log level
+        ipps::bLogLvl = _lvl;
 
         // destroy all shared log pointers and recreate.
         spdlog::drop_all();
 
         //Get path and extension
+        //TODO: change to directory path instead of file name
         string _location(log["location"].GetString());
         boost::split(_vStrLocation,_location,boost::is_any_of("."));
         if(_vStrLocation.size() > 1)
@@ -195,6 +216,7 @@ MSTS ipps::configurelogs()
             _strPath = _location;
             _strExt = "log";
         }
+        //setup system log
         mlogging _ippsmlog(_strPath, _strExt, _lvl);
         _sts = _ippsmlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
         if(MDSUCCESS != _sts)
@@ -223,7 +245,39 @@ MSTS ipps::configureFilters()
 
 MSTS ipps::configureThds()
 {
-    return(MDSUCCESS);
+     MSTS            _sts = MDERROR;
+   // const Value&    _ipps = systemDoc["ipps"];
+   // int             _nThds = _ipps["pktproc_threads"].GetInt();
+   // string          _strPath = "/tmp/ipps";
+
+    do
+    {
+
+        /*
+        for(size_t _i = 0; _i < _nThds; _i++)
+        {
+            _strPath = _strPath + std::to_string(_i);
+            mlogging _thdlog(_strPath, _strExt, _lvl);
+            _sts = _thdlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
+            if(MDSUCCESS != _sts)
+                break;
+            pMIppsLog = _thdlog.getRotateLog();
+            _sts = MDSUCCESS;
+            mthread _ppThd = new mthread(getVerbose());
+            vThreads.push_back(_ppThd);
+        } */
+        mthread pproc1(true);
+        pproc1.start();
+        pproc1.join();
+    
+        mthread pproc2(true);
+        pproc2.start();
+        pproc2.join();
+
+        _sts = MDSUCCESS;
+    }while(FALSE);
+     
+    return(_sts);
 }
 
 void ipps_print(const char *str)

@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Product",
-  "description": "packet processing input",
+  "title": "Component",
+  "description": "Packet Processing Service",
   "type": "object",
   "properties": {
     "version": {
@@ -48,3 +48,4 @@
     "interfaces"
   ]
 }
+

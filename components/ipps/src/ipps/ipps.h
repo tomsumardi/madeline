@@ -4,7 +4,7 @@
 #include "mutil/src/madeline.h"
 #include "mutil/src/mutil.h"
 #include "mpfring.h"
-#include "mthreads.h"
+#include "mthread.h"
 #include <iostream>
 #include <glib.h>
 #include <boost/filesystem.hpp>
@@ -42,7 +42,7 @@ class ipps : public madeline{
         }
     };
     Document* getIppsJsonDoc() {return(&ippsDoc);}
-    void validateIppsJsonDocs();
+    MSTS validateIppsJsonDocs();
     Document* getSysJsonDoc() {return(&systemDoc);}
     std::shared_ptr<spdlog::logger> getSysLogHandler(){return(pMIppsLog);}
     bool getStandalone() {return(bMstandalone);}
@@ -51,15 +51,21 @@ class ipps : public madeline{
     void setVerbose(bool bVerbose) {bMverbose = bVerbose;}
     /* Configure */
     MSTS processCmdArgs(int argc, char *argv[]);
-    MSTS configurelogs();
+    MSTS configureSysLog();
     MSTS configureComChannels();
     MSTS configurePfring();
     MSTS configureFilters();
     MSTS configureThds();
   private:
+    //logging
     std::shared_ptr<spdlog::logger>     pMIppsLog;
     Document                            ippsDoc;
     Document                            systemDoc;
+    bool                                bLogLvl;
+    //thread mgmt
+    vector<mthread>                     vThreads;
+
+    //thdmgmt                             threads;
     //ippsPfring  pring;
     //ippsThread  thread;
 };

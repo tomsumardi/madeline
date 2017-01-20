@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         if (_sts != MDSUCCESS)
             break;
         //+ configure debug logging (logging)
-        _sts = _ipps.configurelogs();
+        _sts = _ipps.configureSysLog();
         if (_sts != MDSUCCESS)
             break;
         //+ register with MS if not standalone (main)
