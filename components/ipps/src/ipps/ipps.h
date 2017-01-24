@@ -12,6 +12,8 @@
 #include <boost/lexical_cast.hpp>
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+#define IPPS_SYNCH_TIMEOUT_MS       500
+#define IPPS_THDJOIN_TIMEOUT_SEC    5
 
 class ipps : public madeline{
   public:

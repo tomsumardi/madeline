@@ -235,46 +235,92 @@ MSTS ipps::configureThds()
      const Value&    _log = _ipps["log"];
      string          _location(_log["dir_location"].GetString());
 
-    do
+    //registers all threads. each thread has its own class context
+    for(int _i = 0; _i < _nThds; _i++)
     {
-        //registers all threads. each thread has its own class context
-        for(int _i = 0; _i < _nThds; _i++)
+        //setup rotating logging
+        mlogging* _pThdLogDoc = new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl);
+        if(!_pThdLogDoc)
         {
-            //setup rotating logging
-            mlogging* _pThdLogDoc = new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl);
-            if(!_pThdLogDoc)
-            {
-                pMIppsLog->error("error malloc logging object for pktproc threads");
-                break;
-            }
-            _sts = _pThdLogDoc->addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
-            if(MDSUCCESS != _sts)
-                break;
-            //save all threads
-            mthread* _ppThd = new mthread(getVerbose(),_pThdLogDoc);
-            if(!_ppThd)
-            {
-                pMIppsLog->error("error malloc threads");
-                break;
-            }
-            vThreads.push_back(_ppThd);
+            pMIppsLog->error("error malloc logging object for pktproc threads");
+            break;
         }
+        _sts = _pThdLogDoc->addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
+        if(MDSUCCESS != _sts)
+            break;
+        //save all threads
+        mthread* _ppThd = new mthread(getVerbose(),_pThdLogDoc);
+        if(!_ppThd)
+        {
+            pMIppsLog->error("error malloc threads");
+            break;
+        }
+        vThreads.push_back(_ppThd);
+    }
 
-        _sts = MDSUCCESS;
-    }while(FALSE);
+    _sts = MDSUCCESS;
      
     return(_sts);
 }
 
 MSTS ipps::runThds()
 {
-    //Launch all threads
-    for (std::vector<mthread*>::iterator ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
-    {
+    MSTS                             _sts       = MDERROR;
+    bool                             _bWaitThds = true;
+    boost::posix_time::time_duration _timeout =
+            boost::posix_time::seconds(IPPS_THDJOIN_TIMEOUT_SEC);
+
+    /* background thread scheduler */
+    //1.Launch all threads
+    std::vector<mthread*>::iterator ppthd;
+    for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
         (*ppthd)->start();
-        (*ppthd)->join();
+    boost::this_thread::sleep(boost::posix_time::seconds(1));
+
+    //2.snchronization, wait until all threads are ready to go.
+    for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+    {
+        //check if the thread is ready to go
+        //shared variables are mutex protected always...
+        while(!(*ppthd)->isInitReady())
+            boost::this_thread::sleep(boost::posix_time::milliseconds(IPPS_SYNCH_TIMEOUT_MS));
+        if((*ppthd)->isInitError())
+        {
+            _bWaitThds = false;
+            break;
+        }
+        (*ppthd)->interrupt();
     }
-    return(MDSUCCESS);
+
+    //3.wait until all threads done
+    //synchronization, wait until all threads are ready to go.
+    if(_bWaitThds)
+    {
+        for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+        {
+            while(1)
+            {
+
+                if ((*ppthd)->timedJoin(_timeout))
+                {
+                    //finished
+                    pMIppsLog->info("Worker threads finished");
+                    break;
+                }
+                else
+                {
+                    //Not finished;
+                    pMIppsLog->info("Worker threads not finished");
+                }
+                boost::this_thread::sleep(boost::posix_time::seconds(1));
+            }
+        }
+        _sts = MDSUCCESS;
+    }
+    else
+        pMIppsLog->error("failure init one of the threads");
+
+    return(_sts);
 }
 
 void ipps_print(const char *str)
