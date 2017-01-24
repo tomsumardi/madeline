@@ -9,6 +9,7 @@
 #include <glib.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 
@@ -41,6 +42,12 @@ class ipps : public madeline{
           BOOST_ASSERT(NULL);
         }
     };
+    ~ipps()
+    {
+        for (std::vector<mthread*>::iterator ppThd = vThreads.begin();
+                ppThd != vThreads.end(); ++ppThd)
+        {delete(*ppThd);}
+    }
     Document* getIppsJsonDoc() {return(&ippsDoc);}
     MSTS validateIppsJsonDocs();
     Document* getSysJsonDoc() {return(&systemDoc);}
@@ -56,14 +63,15 @@ class ipps : public madeline{
     MSTS configurePfring();
     MSTS configureFilters();
     MSTS configureThds();
+    MSTS runThds();
   private:
     //logging
     std::shared_ptr<spdlog::logger>     pMIppsLog;
     Document                            ippsDoc;
     Document                            systemDoc;
-    bool                                bLogLvl;
+    spdlog::level::level_enum           eLogLvl;
     //thread mgmt
-    vector<mthread>                     vThreads;
+    vector<mthread*>                     vThreads;
 
     //thdmgmt                             threads;
     //ippsPfring  pring;

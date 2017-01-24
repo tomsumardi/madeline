@@ -8,7 +8,7 @@ MSTS mlogging::addRotate(int ifsize, int ifrotnum)
     {
         mSinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt> (mStrlname, mStrext, ifsize, ifrotnum));
         mSinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
-        mCombinedRotateLog = std::make_shared<spdlog::logger>("name", begin(mSinks), end(mSinks));
+        mCombinedRotateLog = std::make_shared<spdlog::logger>(mStrlname, begin(mSinks), end(mSinks));
         mCombinedRotateLog->set_level(mloglvl);
         spdlog::register_logger(mCombinedRotateLog);
     }

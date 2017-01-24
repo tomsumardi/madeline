@@ -18,8 +18,8 @@
           "log": {
             "type": "object",
             "properties": {
-              "location": {
-                "description": "location",
+              "dir_location": {
+                "description": "directory location",
                 "type": "string"
               },
               "size_mb": {

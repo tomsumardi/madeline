@@ -43,6 +43,10 @@ int main(int argc, char *argv[])
         _sts = _ipps.configureThds();
         if (_sts != MDSUCCESS)
             break;
+        //+ Launch all threads
+        _sts = _ipps.runThds();
+        if (_sts != MDSUCCESS)
+            break;
     }while(FALSE);
 
     return _sts;

@@ -1,9 +1,9 @@
-#include "mthread.h"
+#include "ipps.h"
 using namespace std;
 
 void mthread :: pProcessing()
-{
-    //cout << mthread::strTest << endl;
-    cout << mthread::bVerbose << endl;
+{;
+    std::string strTid = boost::lexical_cast<std::string>(boost::this_thread::get_id());
+    pThdLog->info("thread ID:"+strTid);
 }
 

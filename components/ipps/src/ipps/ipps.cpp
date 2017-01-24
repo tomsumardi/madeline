@@ -137,8 +137,8 @@ MSTS ipps::validateIppsJsonDocs()
     BOOST_ASSERT(ipps["pktproc_threads"].IsNumber());
 
     const Value& log = ipps["log"];
-    BOOST_ASSERT(log.HasMember("location"));
-    BOOST_ASSERT(log["location"].IsString());
+    BOOST_ASSERT(log.HasMember("dir_location"));
+    BOOST_ASSERT(log["dir_location"].IsString());
     BOOST_ASSERT(log.HasMember("size_mb"));
     BOOST_ASSERT(log["size_mb"].IsNumber());
     BOOST_ASSERT(log.HasMember("num"));
@@ -168,57 +168,41 @@ MSTS ipps::configureSysLog()
     do
     {
         spdlog::level::level_enum   _lvl;
-        string                      _strExt = "";
-        string                      _strPath = "";
-        vector<string>              _vStrLocation;
 
-        const Value& ipps = systemDoc["ipps"];
-        const Value& log = ipps["log"];
+        const Value& _ipps = systemDoc["ipps"];
+        const Value& _log = _ipps["log"];
 
-        if(boost::iequals(log["level"].GetString(), "trace"))
+        if(boost::iequals(_log["level"].GetString(), "trace"))
             _lvl = MD_LTRACE;
-        else if(boost::iequals(log["level"].GetString(), "debug"))
+        else if(boost::iequals(_log["level"].GetString(), "debug"))
             _lvl = MD_LDEBUG;
-        else if(boost::iequals(log["level"].GetString(), "info"))
+        else if(boost::iequals(_log["level"].GetString(), "info"))
             _lvl = MD_LINFO;
-        else if(boost::iequals(log["level"].GetString(), "warn"))
+        else if(boost::iequals(_log["level"].GetString(), "warn"))
             _lvl = MD_LWARN;
-        else if(boost::iequals(log["level"].GetString(), "error"))
+        else if(boost::iequals(_log["level"].GetString(), "error"))
             _lvl = MD_LERROR;
-        else if(boost::iequals(log["level"].GetString(), "crit"))
+        else if(boost::iequals(_log["level"].GetString(), "crit"))
             _lvl = MD_LCRIT;
-        else if(boost::iequals(log["level"].GetString(), "off"))
+        else if(boost::iequals(_log["level"].GetString(), "off"))
             _lvl = MD_LOFF;
         else
         {
             pMIppsLog->error("invalid log level input: \"{}\" valid inputs: "\
-                    "trace,debug,info,warn,error,crit",log["level"].GetString());
+                    "trace,debug,info,warn,error,crit",_log["level"].GetString());
             break;
         }
         //Set log level
-        ipps::bLogLvl = _lvl;
+        ipps::eLogLvl = _lvl;
 
         // destroy all shared log pointers and recreate.
         spdlog::drop_all();
 
-        //Get path and extension
-        //TODO: change to directory path instead of file name
-        string _location(log["location"].GetString());
-        boost::split(_vStrLocation,_location,boost::is_any_of("."));
-        if(_vStrLocation.size() > 1)
-        {
-            for (size_t _i = 0; _i < _vStrLocation.size()-1; _i++)
-                _strPath += _vStrLocation[_i];
-            _strExt = _vStrLocation[_vStrLocation.size()-1];
-        }
-        else
-        {
-            _strPath = _location;
-            _strExt = "log";
-        }
+        //Get directory path
+        string _location(_log["dir_location"].GetString());
         //setup system log
-        mlogging _ippsmlog(_strPath, _strExt, _lvl);
-        _sts = _ippsmlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
+        mlogging _ippsmlog(_location+"/"+"ipps", "log", _lvl);
+        _sts = _ippsmlog.addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
         if(MDSUCCESS != _sts)
             break;
         pMIppsLog = _ippsmlog.getRotateLog();
@@ -246,38 +230,51 @@ MSTS ipps::configureFilters()
 MSTS ipps::configureThds()
 {
      MSTS            _sts = MDERROR;
-   // const Value&    _ipps = systemDoc["ipps"];
-   // int             _nThds = _ipps["pktproc_threads"].GetInt();
-   // string          _strPath = "/tmp/ipps";
+     const Value&    _ipps = systemDoc["ipps"];
+     int             _nThds = _ipps["pktproc_threads"].GetInt();
+     const Value&    _log = _ipps["log"];
+     string          _location(_log["dir_location"].GetString());
 
     do
     {
-
-        /*
-        for(size_t _i = 0; _i < _nThds; _i++)
+        //registers all threads. each thread has its own class context
+        for(int _i = 0; _i < _nThds; _i++)
         {
-            _strPath = _strPath + std::to_string(_i);
-            mlogging _thdlog(_strPath, _strExt, _lvl);
-            _sts = _thdlog.addRotate(log["size_mb"].GetInt()*1024*1024,log["num"].GetInt());
+            //setup rotating logging
+            mlogging* _pThdLogDoc = new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl);
+            if(!_pThdLogDoc)
+            {
+                pMIppsLog->error("error malloc logging object for pktproc threads");
+                break;
+            }
+            _sts = _pThdLogDoc->addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
             if(MDSUCCESS != _sts)
                 break;
-            pMIppsLog = _thdlog.getRotateLog();
-            _sts = MDSUCCESS;
-            mthread _ppThd = new mthread(getVerbose());
+            //save all threads
+            mthread* _ppThd = new mthread(getVerbose(),_pThdLogDoc);
+            if(!_ppThd)
+            {
+                pMIppsLog->error("error malloc threads");
+                break;
+            }
             vThreads.push_back(_ppThd);
-        } */
-        mthread pproc1(true);
-        pproc1.start();
-        pproc1.join();
-    
-        mthread pproc2(true);
-        pproc2.start();
-        pproc2.join();
+        }
 
         _sts = MDSUCCESS;
     }while(FALSE);
      
     return(_sts);
+}
+
+MSTS ipps::runThds()
+{
+    //Launch all threads
+    for (std::vector<mthread*>::iterator ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+    {
+        (*ppthd)->start();
+        (*ppthd)->join();
+    }
+    return(MDSUCCESS);
 }
 
 void ipps_print(const char *str)

@@ -1,9 +1,9 @@
 {
     "version": "1.0.0",
     "ipps": {
-        "pktproc_threads": 1,
+        "pktproc_threads": 3,
         "log": {
-            "location": "/tmp/ipps/ipps.log",
+            "dir_location": "/tmp/ipps",
             "size_mb": 10,
             "num": 5,
             "level": "debug"
