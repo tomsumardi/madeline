@@ -125,7 +125,6 @@ Application Options:
   -v, --verbose           verbose
   -a, --standalone        standalone, no MS
   -i, --ippsconf=file     ipps config
-  -s, --sysconf=file      system config
   
  Example:
  src/main/ipps -i ../cfg/examples/ipps.json -s ../cfg/examples/system.json 
@@ -135,7 +134,6 @@ Application Options:
 [2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_1] [info] thread ID:7f8e93828700 pulling packets..
 [2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_0] [info] Worker thread interrupted, processing packets..
 [2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_0] [info] thread ID:7f8e94029700 pulling packets..
-[2017-01-24 17:40:43.821] [/tmp/ipps/ppthd_2] [info] thread ID:7f8e93027700 pulling packets..
 ...
 ```
 * cs: 
