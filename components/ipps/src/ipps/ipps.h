@@ -17,6 +17,17 @@
 
 class ipps : public madeline{
   public:
+
+    typedef struct _ippsPfringConf{
+        int nThreads;
+        int nCoreBindId;
+        int nWatermark;
+        int nPollWaitMsec;
+        int nRingClusterId;
+        bool bHwTimestamp;
+        bool bStripTimestamp;
+    }ippsPfringConf;
+
     ipps(string strDname,
          string strFname,
          string strFext,
@@ -24,6 +35,14 @@ class ipps : public madeline{
          int ifsize,
          int ifnum)
     {
+        pfringConf.nThreads = 3;
+        pfringConf.nCoreBindId = 1;
+        pfringConf.nWatermark = 10;
+        pfringConf.nPollWaitMsec = 100;
+        pfringConf.nRingClusterId = 55;
+        pfringConf.bHwTimestamp = false;
+        pfringConf.bStripTimestamp = false;
+
         try
         {
             /* stop here if constructor failed */
@@ -52,7 +71,6 @@ class ipps : public madeline{
     }
     Document* getIppsJsonDoc() {return(&ippsDoc);}
     MSTS validateIppsJsonDocs();
-    Document* getSysJsonDoc() {return(&systemDoc);}
     std::shared_ptr<spdlog::logger> getSysLogHandler(){return(pMIppsLog);}
     bool getStandalone() {return(bMstandalone);}
     void setStandalone(bool bStandalone) {bMstandalone = bStandalone;}
@@ -70,7 +88,7 @@ class ipps : public madeline{
     //logging
     std::shared_ptr<spdlog::logger>     pMIppsLog;
     Document                            ippsDoc;
-    Document                            systemDoc;
+    ippsPfringConf                      pfringConf;
     spdlog::level::level_enum           eLogLvl;
     //thread mgmt
     vector<mthread*>                     vThreads;

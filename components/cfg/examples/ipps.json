@@ -1,6 +1,21 @@
-{
+ {
   "version": "1.0.1",
-  "interfaces": [
+  "log": {
+    "dir_location": "/tmp/ipps",
+    "size_mb": 10,
+    "num": 5,
+    "level": "debug"
+    },
+  "pfring": {
+    "threads": 3,
+    "core_bind_id":1,
+    "watermark": 10,
+    "poll_wait_msec":100,
+    "ring_cluster_id":55,
+    "hw_timestamp":"no",
+    "strip_timestamp":"yes"
+   },
+  "interfaces_in": [
     {
       "name": "eth0",
       "direction": "rx",
@@ -24,6 +39,11 @@
         "192.168.57.2",
         "192.168.57.3"
       ]
+    }
+  ],
+  "interfaces_out": [
+    {
+      "name": "eth2"
     }
   ]
 }

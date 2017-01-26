@@ -8,7 +8,67 @@
       "description": "The unique version of component",
       "type": "string"
     },
-    "interfaces": {
+    "log": {
+        "type": "object",
+        "properties": {
+          "dir_location": {
+            "description": "directory location",
+            "type": "string"
+          },
+          "size_mb": {
+            "description": "size in mb",
+            "type": "integer"
+          },
+          "num": {
+            "description": "number of log rotate",
+            "type": "integer"
+          },
+          "level": {
+            "description": "trace,debug,info,warn,error,crit,off",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dir_location",
+          "size_mb",
+          "num",
+          "level"
+        ]
+    },
+    "pfring": {
+        "type": "object",
+        "properties": {
+          "threads": {
+            "description": "Number of polling threads: 5",
+            "type": "integer"
+          },
+          "core_bind_id": {
+            "description": "Bind this app to a core",
+            "type": "integer"
+          },
+          "watermark": {
+            "description": "ring buffer Watermark: 100",
+            "type": "integer"
+          },
+          "poll_wait_msec": {
+            "description": "polling wait in msec: 50",
+            "type": "integer"
+          },
+          "ring_cluster_id": {
+            "description": "Cluster ID (kernel clustering):5555",
+            "type": "integer"
+          },
+          "hw_timestamp": {
+            "description": "Enable hw timestamping: no",
+            "type": "string"
+          },
+          "strip_timestamp": {
+            "description": "strip hw timestamps (if present): no",
+            "type": "string"
+          }
+        }
+    },
+    "interfaces_in": {
       "type": "array",
       "properties": {
         "name": {
@@ -41,11 +101,24 @@
         "mode",
         "pcap_filters"
       ]
+    },
+    "interfaces_out": {
+      "type": "array",
+      "properties": {
+        "name": {
+          "description": "Interface Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
     }
   },
   "required": [
     "version",
-    "interfaces"
+    "log",
+    "interfaces_in",
+    "interfaces_out"
   ]
 }
-

@@ -9,7 +9,6 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
     gboolean            _bVerbose = FALSE;
     gboolean            _bStandalone = FALSE;
     gchar               *_strIppsConfig = NULL;
-    gchar               *_strSysConfig = NULL;
 
     GOptionEntry entries[] =
     {
@@ -17,7 +16,6 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
       { "verbose", 'v', 0, G_OPTION_ARG_NONE, &_bVerbose, "verbose", NULL },
       { "standalone", 'a', 0, G_OPTION_ARG_NONE, &_bStandalone, "standalone, no MS", NULL },
       { "ippsconf", 'i', 0, G_OPTION_ARG_FILENAME, &_strIppsConfig, "ipps config", "file" },
-      { "sysconf", 's', 0, G_OPTION_ARG_FILENAME, &_strSysConfig, "system config", "file" },
       ARG_NONE
     };
 
@@ -61,30 +59,40 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
                   pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
                   break;
               }
-          }
-          if(_strSysConfig)
-          {
-              //use c++ rapidJson libary to parse json
-              BOOST_ASSERT(ipps::getSysJsonDoc());
-              mutilMparse jsonParser(_strSysConfig,ipps::getSysJsonDoc(),pMIppsLog);
-              _sts = jsonParser.processJson();
-              if(MDSUCCESS != _sts)
+              if(MDSUCCESS == ipps::validateIppsJsonDocs())
               {
-                  pMIppsLog->error("failed to parse json file, {}",_strSysConfig);
+                  const Value& _pfring = ippsDoc["pfring"];
+                  if(_pfring.HasMember("threads"))
+                      pfringConf.nThreads = _pfring["threads"].GetInt();
+                  if(_pfring.HasMember("core_bind_id"))
+                      pfringConf.nCoreBindId = _pfring["core_bind_id"].GetInt();
+                  if(_pfring.HasMember("watermark"))
+                      pfringConf.nWatermark = _pfring["watermark"].GetInt();
+                  if(_pfring.HasMember("poll_wait_msec"))
+                      pfringConf.nPollWaitMsec = _pfring["poll_wait_msec"].GetInt();
+                  if(_pfring.HasMember("ring_cluster_id"))
+                      pfringConf.nRingClusterId = _pfring["ring_cluster_id"].GetInt();
+                  if(_pfring.HasMember("hw_timestamp"))
+                  {
+                      if(boost::iequals(_pfring["hw_timestamp"].GetString(),"yes"))
+                          pfringConf.bHwTimestamp = true;
+                      else
+                          pfringConf.bHwTimestamp = false;
+                  }
+                  if(_pfring.HasMember("strip_timestamp"))
+                  {
+                      if(boost::iequals(_pfring["strip_timestamp"].GetString(),"yes"))
+                          pfringConf.bStripTimestamp = true;
+                      else
+                          pfringConf.bStripTimestamp = false;
+                  }
+              }
+              else
+              {
+                  pMIppsLog->error("error, you must specify -i ,\
+                                        if one argument is being specified");
                   break;
               }
-          }
-          if(_strIppsConfig && _strSysConfig)
-          {
-              if(ipps::validateIppsJsonDocs())
-                break;
-          }
-          if((_strIppsConfig && !_strSysConfig) ||
-             (!_strIppsConfig && _strSysConfig))
-          {
-              pMIppsLog->error("error, you must specify -i and -s ,\
-                                    if one argument is being specified");
-              break;
           }
 
     }while(FALSE);
@@ -97,64 +105,73 @@ MSTS ipps::validateIppsJsonDocs()
     MSTS    _sts = MDERROR;
    
     pMIppsLog->debug("validating ipps config");
-    // TDOD: validate Document ippsDoc, more validation needed
+    // TODO: validate Document ippsDoc, more validation needed
     BOOST_ASSERT(ippsDoc.HasMember("version"));
     BOOST_ASSERT(ippsDoc["version"].IsString());
     //cout << boost::format("version = %s\n") %ippsDoc["version"].GetString();
 
-    const Value& intfList = ippsDoc["interfaces"];
-    BOOST_ASSERT(ippsDoc.HasMember("interfaces"));
-    BOOST_ASSERT(ippsDoc["interfaces"].IsArray());
+    const Value& _log = ippsDoc["log"];
+    BOOST_ASSERT(ippsDoc.HasMember("log"));
+    BOOST_ASSERT(_log.HasMember("dir_location"));
+    BOOST_ASSERT(_log["dir_location"].IsString());
+    BOOST_ASSERT(_log.HasMember("size_mb"));
+    BOOST_ASSERT(_log["size_mb"].IsNumber());
+    BOOST_ASSERT(_log.HasMember("num"));
+    BOOST_ASSERT(_log["num"].IsNumber());
+    BOOST_ASSERT(_log.HasMember("level"));
+    BOOST_ASSERT(_log["level"].IsString());
+
+    Value& _intfListIn = ippsDoc["interfaces_in"];
+    BOOST_ASSERT(ippsDoc.HasMember("interfaces_in"));
+    BOOST_ASSERT(ippsDoc["interfaces_in"].IsArray());
 
     // rapidjson uses SizeType instead of size_t.
     // name and direction are required values
-    for (SizeType i = 0; i < intfList.Size(); i++)
+    for (SizeType i = 0; i < _intfListIn.Size(); i++)
     {
-        const Value& intfElm = intfList[i];
+        const Value& _intfElm = _intfListIn[i];
 
-        if(intfElm.HasMember("name"))
+        if(_intfElm.HasMember("name"))
         {
-            BOOST_ASSERT(intfElm["name"].IsString());
-            //cout << boost::format("name = %s\n") %intfElm["name"].GetString();
+            BOOST_ASSERT(_intfElm["name"].IsString());
+            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
         }
-        if(intfElm.HasMember("direction"))
+        if(_intfElm.HasMember("direction"))
         {
-            BOOST_ASSERT(intfElm["direction"].IsString());
-            //cout << boost::format("direction = %s\n") %intfElm["direction"].GetString();
+            BOOST_ASSERT(_intfElm["direction"].IsString());
+            //cout << boost::format("direction = %s\n") %_intfElm["direction"].GetString();
         }
     }
 
-    pMIppsLog->debug("validating system config");
-
-    // validate Document systemDoc here
-    BOOST_ASSERT(systemDoc.HasMember("version"));
-    BOOST_ASSERT(systemDoc["version"].IsString());
-
-    BOOST_ASSERT(systemDoc.HasMember("ipps"));
-    const Value& ipps = systemDoc["ipps"];
-
-    BOOST_ASSERT(ipps.HasMember("pktproc_threads"));
-    BOOST_ASSERT(ipps["pktproc_threads"].IsNumber());
-
-    const Value& log = ipps["log"];
-    BOOST_ASSERT(log.HasMember("dir_location"));
-    BOOST_ASSERT(log["dir_location"].IsString());
-    BOOST_ASSERT(log.HasMember("size_mb"));
-    BOOST_ASSERT(log["size_mb"].IsNumber());
-    BOOST_ASSERT(log.HasMember("num"));
-    BOOST_ASSERT(log["num"].IsNumber());
-    BOOST_ASSERT(log.HasMember("level"));
-    BOOST_ASSERT(log["level"].IsString());
-
-    //TODO: Validate input values here
-    do
+    Value& _intfListOut = ippsDoc["interfaces_out"];
+    BOOST_ASSERT(ippsDoc.HasMember("interfaces_out"));
+    BOOST_ASSERT(ippsDoc["interfaces_out"].IsArray());
+    for (SizeType i = 0; i < _intfListOut.Size(); i++)
     {
-        if(ipps["pktproc_threads"].GetInt() <= 0)
+        const Value& _intfElm = _intfListOut[i];
+
+        if(_intfElm.HasMember("name"))
         {
-            pMIppsLog->error("threads <= 0");
-            break;
-        } 
-    }while(FALSE);
+            BOOST_ASSERT(_intfElm["name"].IsString());
+            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
+        }
+    }
+    const Value& _pfring = ippsDoc["pfring"];
+    BOOST_ASSERT(ippsDoc.HasMember("pfring"));
+    if(_pfring.HasMember("threads"))
+      BOOST_ASSERT(_pfring["threads"].IsNumber());
+    if(_pfring.HasMember("core_bind_id"))
+      BOOST_ASSERT(_pfring["core_bind_id"].IsNumber());
+    if(_pfring.HasMember("watermark"))
+      BOOST_ASSERT(_pfring["watermark"].IsNumber());
+    if(_pfring.HasMember("poll_wait_msec"))
+      BOOST_ASSERT(_pfring["poll_wait_msec"].IsNumber());
+    if(_pfring.HasMember("ring_cluster_id"))
+      BOOST_ASSERT(_pfring["ring_cluster_id"].IsNumber());
+    if(_pfring.HasMember("hw_timestamp"))
+      BOOST_ASSERT(_pfring["hw_timestamp"].IsString());
+    if(_pfring.HasMember("strip_timestamp"))
+      BOOST_ASSERT(_pfring["strip_timestamp"].IsString());
 
     _sts = MDSUCCESS;
 
@@ -169,8 +186,7 @@ MSTS ipps::configureSysLog()
     {
         spdlog::level::level_enum   _lvl;
 
-        const Value& _ipps = systemDoc["ipps"];
-        const Value& _log = _ipps["log"];
+        const Value& _log = ippsDoc["log"];
 
         if(boost::iequals(_log["level"].GetString(), "trace"))
             _lvl = MD_LTRACE;
@@ -219,6 +235,8 @@ MSTS ipps::configureComChannels()
 
 MSTS ipps::configurePfring()
 {
+    //check https://github.com/ntop/PF_RING/blob/dev/userland/lib/pfring.h
+    //check https://github.com/ntop/PF_RING/blob/dev/userland/examples/pcount.c
     return(MDSUCCESS);
 }
 
@@ -230,10 +248,9 @@ MSTS ipps::configureFilters()
 MSTS ipps::configureThds()
 {
      MSTS            _sts = MDERROR;
-     const Value&    _ipps = systemDoc["ipps"];
-     int             _nThds = _ipps["pktproc_threads"].GetInt();
-     const Value&    _log = _ipps["log"];
+     const Value&    _log = ippsDoc["log"];
      string          _location(_log["dir_location"].GetString());
+     int             _nThds = pfringConf.nThreads;
 
     //registers all threads. each thread has its own class context
     for(int _i = 0; _i < _nThds; _i++)
