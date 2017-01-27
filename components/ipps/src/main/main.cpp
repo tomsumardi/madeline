@@ -1,5 +1,9 @@
 #include "main.h"
 
+//TODO:
+// -add json.schema validator (argument option where to find validator) (arg -s?)
+// -handle optional values in arguments
+
 int main(int argc, char *argv[])
 {
     MSTS    _sts = MDSUCCESS;
@@ -26,23 +30,23 @@ int main(int argc, char *argv[])
         _sts = _ipps.configureSysLog();
         if (_sts != MDSUCCESS)
             break;
-        //+ register with MS if not standalone (main)
-        //+ polls for new configuration from MS using AMQP channel (ipps)
-        _sts = _ipps.configureComChannels();
+        //+ configure threads
+        _sts = _ipps.configureThds();
         if (_sts != MDSUCCESS)
             break;
         //+ configure pfring (pfring)
         _sts = _ipps.configurePfring();
         if (_sts != MDSUCCESS)
             break;
+        //+ register with MS if not standalone (main)
+        //+ polls for new configuration from MS using AMQP channel (ipps)
+        _sts = _ipps.configureComChannels();
+        if (_sts != MDSUCCESS)
+            break;
         //+ Configures L2/L3 Filters (pfilter)
-        _sts = _ipps.configureFilters();
-        if (_sts != MDSUCCESS)
-            break;
-        //+ Spawning multiple worker threads based on configuration given (thdmgmt-pktproc)
-        _sts = _ipps.configureThds();
-        if (_sts != MDSUCCESS)
-            break;
+        //_sts = _ipps.configureFilters();
+        //if (_sts != MDSUCCESS)
+        //    break;
         //+ Launch all threads
         _sts = _ipps.runThds();
         if (_sts != MDSUCCESS)

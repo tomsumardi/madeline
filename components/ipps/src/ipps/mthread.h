@@ -23,6 +23,7 @@ class mthread{
         void start(){tmThread = boost::thread(&mthread::pProcessing, this);}
         void join(){tmThread.join();}
         void interrupt(){tmThread.interrupt();}
+        void addPfring(mpfring* pRing) {pPfring = pRing;}
         bool timedJoin(boost::posix_time::time_duration timeout){return(tmThread.timed_join(timeout));}
         bool isInitError()
         {
@@ -67,6 +68,7 @@ class mthread{
         bool                            bInitRdy;
         boost::mutex                    mtx_bInitError;
         bool                            bInitError;
+        mpfring*                        pPfring;
 };
 
 #endif /* _MTHREADS_H_ */

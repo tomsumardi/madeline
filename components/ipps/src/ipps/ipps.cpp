@@ -59,35 +59,8 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
                   pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
                   break;
               }
-              if(MDSUCCESS == ipps::validateIppsJsonDocs())
-              {
-                  const Value& _pfring = ippsDoc["pfring"];
-                  if(_pfring.HasMember("threads"))
-                      pfringConf.nThreads = _pfring["threads"].GetInt();
-                  if(_pfring.HasMember("core_bind_id"))
-                      pfringConf.nCoreBindId = _pfring["core_bind_id"].GetInt();
-                  if(_pfring.HasMember("watermark"))
-                      pfringConf.nWatermark = _pfring["watermark"].GetInt();
-                  if(_pfring.HasMember("poll_wait_msec"))
-                      pfringConf.nPollWaitMsec = _pfring["poll_wait_msec"].GetInt();
-                  if(_pfring.HasMember("ring_cluster_id"))
-                      pfringConf.nRingClusterId = _pfring["ring_cluster_id"].GetInt();
-                  if(_pfring.HasMember("hw_timestamp"))
-                  {
-                      if(boost::iequals(_pfring["hw_timestamp"].GetString(),"yes"))
-                          pfringConf.bHwTimestamp = true;
-                      else
-                          pfringConf.bHwTimestamp = false;
-                  }
-                  if(_pfring.HasMember("strip_timestamp"))
-                  {
-                      if(boost::iequals(_pfring["strip_timestamp"].GetString(),"yes"))
-                          pfringConf.bStripTimestamp = true;
-                      else
-                          pfringConf.bStripTimestamp = false;
-                  }
-              }
-              else
+              //TODO: use rapidjson schema validator instead of below.
+              if(MDSUCCESS != ipps::validateIppsJsonDocs())
               {
                   pMIppsLog->error("error, you must specify -i ,\
                                         if one argument is being specified");
@@ -100,6 +73,7 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
     return _sts;
 }
 
+//TODO: will be replaced with json schema validator
 MSTS ipps::validateIppsJsonDocs()
 {
     MSTS    _sts = MDERROR;
@@ -235,9 +209,21 @@ MSTS ipps::configureComChannels()
 
 MSTS ipps::configurePfring()
 {
+    MSTS    _sts = MDERROR;
     //check https://github.com/ntop/PF_RING/blob/dev/userland/lib/pfring.h
-    //check https://github.com/ntop/PF_RING/blob/dev/userland/examples/pcount.c
-    return(MDSUCCESS);
+    //check https://github.com/ntop/PF_RING/blob/v6.4.1/userland/examples/pfcount.c
+    //Use clustering and all each thread reads individual or bonded interface
+    std::vector<mthread*>::iterator ppthd;
+    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
+    {
+        mpfring* _pRing = new mpfring(&ippsDoc);
+        _sts = _pRing->init();
+        if(MDSUCCESS != _sts)
+            break;
+        (*ppthd)->addPfring(_pRing);
+    }
+
+    return(_sts);
 }
 
 MSTS ipps::configureFilters()
@@ -250,7 +236,8 @@ MSTS ipps::configureThds()
      MSTS            _sts = MDERROR;
      const Value&    _log = ippsDoc["log"];
      string          _location(_log["dir_location"].GetString());
-     int             _nThds = pfringConf.nThreads;
+     const Value&    _pfring = ippsDoc["pfring"];
+     int             _nThds = _pfring["threads"].GetInt();
 
     //registers all threads. each thread has its own class context
     for(int _i = 0; _i < _nThds; _i++)
@@ -272,7 +259,7 @@ MSTS ipps::configureThds()
             pMIppsLog->error("error malloc threads");
             break;
         }
-        vThreads.push_back(_ppThd);
+        vpThreads.push_back(_ppThd);
     }
 
     _sts = MDSUCCESS;
@@ -290,12 +277,12 @@ MSTS ipps::runThds()
     /* background thread scheduler */
     //1.Launch all threads
     std::vector<mthread*>::iterator ppthd;
-    for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
         (*ppthd)->start();
     boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     //2.snchronization, wait until all threads are ready to go.
-    for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
     {
         //check if the thread is ready to go
         //shared variables are mutex protected always...
@@ -313,7 +300,7 @@ MSTS ipps::runThds()
     //synchronization, wait until all threads are ready to go.
     if(_bWaitThds)
     {
-        for (ppthd = vThreads.begin() ; ppthd != vThreads.end(); ++ppthd)
+        for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
         {
             while(1)
             {
