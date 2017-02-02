@@ -54,7 +54,8 @@ LDFLAGS_INC    += $(xml_LIBS) $(glib2_LIBS)
 #-------------------------------------------------------------------------
 # C++
 #-------------------------------------------------------------------------
-LDFLAGS_INC     += -lstdc++ -lm -lboost_regex -lboost_system -lboost_filesystem-mt -lboost_thread
+LDFLAGS_INC     += -lstdc++ -lm -lboost_regex -lboost_system -lboost_filesystem-mt -lboost_thread 
+#-lpfring -lpcap
 
 #-------------------------------------------------------------------------
 # define compiler and linker flags

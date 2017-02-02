@@ -5,118 +5,134 @@
   "type": "object",
   "properties": {
     "version": {
-      "description": "The unique version of component",
-      "type": "string"
+        "description": "The unique version of component",
+        "type": "string"
     },
     "log": {
         "type": "object",
         "properties": {
-          "dir_location": {
-            "description": "directory location",
-            "type": "string"
-          },
-          "size_mb": {
-            "description": "size in mb",
-            "type": "integer"
-          },
-          "num": {
-            "description": "number of log rotate",
-            "type": "integer"
-          },
-          "level": {
-            "description": "trace,debug,info,warn,error,crit,off",
-            "type": "string"
-          }
+            "dir_location": {
+                "description": "directory location",
+                "type": "string"
+            },
+            "size_mb": {
+                "description": "size in mb",
+                "type": "integer"
+            },
+            "num": {
+                "description": "number of log rotate",
+                "type": "integer"
+            },
+            "level": {
+                "description": "trace,debug,info,warn,error,crit,off",
+                "type": "string"
+            }
         },
         "required": [
-          "dir_location",
-          "size_mb",
-          "num",
-          "level"
+            "dir_location",
+            "size_mb",
+            "num",
+            "level"
         ]
     },
-    "pfring": {
-        "type": "object",
-        "properties": {
-          "threads": {
-            "description": "Number of polling threads: 5",
-            "type": "integer"
-          },
-          "core_bind_id": {
-            "description": "Bind this app to a core",
-            "type": "integer"
-          },
-          "watermark": {
-            "description": "ring buffer Watermark: 100",
-            "type": "integer"
-          },
-          "poll_wait_msec": {
-            "description": "polling wait in msec: 50",
-            "type": "integer"
-          },
-          "ring_cluster_id": {
-            "description": "Cluster ID (kernel clustering):5555",
-            "type": "integer"
-          },
-          "hw_timestamp": {
-            "description": "Enable hw timestamping: no",
-            "type": "string"
-          },
-          "strip_timestamp": {
-            "description": "strip hw timestamps (if present): no",
-            "type": "string"
-          }
-        }
+    "threads": {
+        "description": "Number of polling threads: 1",
+        "type": "integer"
     },
     "interfaces_in": {
-      "type": "array",
-      "properties": {
-        "name": {
-          "description": "Interface Name",
-          "type": "string"
+        "type": "object",
+        "properties": {
+            "core_bind_id": {
+                "description": "Bind this app to a core",
+                "type": "integer"
+            },
+            "watermark": {
+                "description": "ring buffer Watermark: 100",
+                "type": "integer"
+            },
+            "poll_wait_msec": {
+                "description": "polling wait in msec: 50",
+                "type": "integer"
+            },
+            "ring_cluster_id": {
+                "description": "Cluster ID (kernel clustering):5555",
+                "type": "integer"
+            },
+            "pcap_filters": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+            },
+            "l3_blacklists": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 0,
+                "uniqueItems": true
+            },
+            "name": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+            }
         },
-        "mode": {
-          "description": "Interface mode (tx/rx/txrx)",
-          "type": "string"
-        },
-        "pcap_filters": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 1,
-          "uniqueItems": true
-        },
-        "l3_blacklists": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 0,
-          "uniqueItems": true
-        }
-      },
-      "required": [
-        "name",
-        "mode",
-        "pcap_filters"
-      ]
+        "required": [
+            "core_bind_id",
+            "watermark",
+            "poll_wait_msec",
+            "ring_cluster_id",
+            "pcap_filters",
+            "l3_blacklists",
+            "name"
+        ]
     },
     "interfaces_out": {
-      "type": "array",
-      "properties": {
-        "name": {
-          "description": "Interface Name",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name"
-      ]
+        "type": "object",
+        "properties": {
+            "core_bind_id": {
+                "description": "Bind this app to a core",
+                "type": "integer"
+            },
+            "watermark": {
+                "description": "ring buffer Watermark: 100",
+                "type": "integer"
+            },
+            "poll_wait_msec": {
+                "description": "polling wait in msec: 50",
+                "type": "integer"
+            },
+            "ring_cluster_id": {
+                "description": "Cluster ID (kernel clustering):5555",
+                "type": "integer"
+            },
+            "name": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+            }
+        },
+        "required": [
+            "core_bind_id",
+            "watermark",
+            "poll_wait_msec",
+            "ring_cluster_id",
+            "name"
+        ]
     }
   },
   "required": [
     "version",
+    "threads",
     "log",
     "interfaces_in",
     "interfaces_out"

@@ -9,6 +9,7 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
     gboolean            _bVerbose = FALSE;
     gboolean            _bStandalone = FALSE;
     gchar               *_strIppsConfig = NULL;
+    gchar               *_strIppsSchm = NULL;
 
     GOptionEntry entries[] =
     {
@@ -16,6 +17,7 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
       { "verbose", 'v', 0, G_OPTION_ARG_NONE, &_bVerbose, "verbose", NULL },
       { "standalone", 'a', 0, G_OPTION_ARG_NONE, &_bStandalone, "standalone, no MS", NULL },
       { "ippsconf", 'i', 0, G_OPTION_ARG_FILENAME, &_strIppsConfig, "ipps config", "file" },
+      { "ippsschm", 's', 0, G_OPTION_ARG_FILENAME, &_strIppsSchm, "ipps schema", "file" },
       ARG_NONE
     };
 
@@ -47,109 +49,38 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           {
               ipps::setStandalone(_bStandalone);
           }
-
-          if(_strIppsConfig)
+          if(!_strIppsConfig)
           {
-              //use c++ rapidJson libary to parse json
-              BOOST_ASSERT(ipps::getIppsJsonDoc());
-              mutilMparse jsonParser(_strIppsConfig,ipps::getIppsJsonDoc(),pMIppsLog);
-              _sts = jsonParser.processJson();
-              if(MDSUCCESS != _sts)
-              {
-                  pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
-                  break;
-              }
-              //TODO: use rapidjson schema validator instead of below.
-              if(MDSUCCESS != ipps::validateIppsJsonDocs())
-              {
-                  pMIppsLog->error("error, you must specify -i ,\
-                                        if one argument is being specified");
-                  break;
-              }
+              pMIppsLog->error("error, you must specify -i");
+              break;
           }
-
+          if(!_strIppsSchm)
+          {
+              pMIppsLog->error("error, you must specify -s");
+              break;
+          }
+          //use c++ rapidJson libary to parse json
+          BOOST_ASSERT(ipps::getIppsJsonDoc());
+          //TODO: dangerous passing pointer document here, will need to do
+          //deep copy within the parser class and return document
+          mutilMparse jsonParser(_strIppsConfig,&ippsDoc,
+                  _strIppsSchm,&ippsSchema,pMIppsLog);
+          _sts = jsonParser.processJson();
+          if(MDSUCCESS != _sts)
+          {
+              pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
+              break;
+          }
+          _sts = jsonParser.validate();
+          if(MDSUCCESS != _sts)
+          {
+              pMIppsLog->error("failed to validate json file, {}",_strIppsConfig);
+              break;
+          }
+          _sts = MDSUCCESS;
     }while(FALSE);
 
     return _sts;
-}
-
-//TODO: will be replaced with json schema validator
-MSTS ipps::validateIppsJsonDocs()
-{
-    MSTS    _sts = MDERROR;
-   
-    pMIppsLog->debug("validating ipps config");
-    // TODO: validate Document ippsDoc, more validation needed
-    BOOST_ASSERT(ippsDoc.HasMember("version"));
-    BOOST_ASSERT(ippsDoc["version"].IsString());
-    //cout << boost::format("version = %s\n") %ippsDoc["version"].GetString();
-
-    const Value& _log = ippsDoc["log"];
-    BOOST_ASSERT(ippsDoc.HasMember("log"));
-    BOOST_ASSERT(_log.HasMember("dir_location"));
-    BOOST_ASSERT(_log["dir_location"].IsString());
-    BOOST_ASSERT(_log.HasMember("size_mb"));
-    BOOST_ASSERT(_log["size_mb"].IsNumber());
-    BOOST_ASSERT(_log.HasMember("num"));
-    BOOST_ASSERT(_log["num"].IsNumber());
-    BOOST_ASSERT(_log.HasMember("level"));
-    BOOST_ASSERT(_log["level"].IsString());
-
-    Value& _intfListIn = ippsDoc["interfaces_in"];
-    BOOST_ASSERT(ippsDoc.HasMember("interfaces_in"));
-    BOOST_ASSERT(ippsDoc["interfaces_in"].IsArray());
-
-    // rapidjson uses SizeType instead of size_t.
-    // name and direction are required values
-    for (SizeType i = 0; i < _intfListIn.Size(); i++)
-    {
-        const Value& _intfElm = _intfListIn[i];
-
-        if(_intfElm.HasMember("name"))
-        {
-            BOOST_ASSERT(_intfElm["name"].IsString());
-            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
-        }
-        if(_intfElm.HasMember("direction"))
-        {
-            BOOST_ASSERT(_intfElm["direction"].IsString());
-            //cout << boost::format("direction = %s\n") %_intfElm["direction"].GetString();
-        }
-    }
-
-    Value& _intfListOut = ippsDoc["interfaces_out"];
-    BOOST_ASSERT(ippsDoc.HasMember("interfaces_out"));
-    BOOST_ASSERT(ippsDoc["interfaces_out"].IsArray());
-    for (SizeType i = 0; i < _intfListOut.Size(); i++)
-    {
-        const Value& _intfElm = _intfListOut[i];
-
-        if(_intfElm.HasMember("name"))
-        {
-            BOOST_ASSERT(_intfElm["name"].IsString());
-            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
-        }
-    }
-    const Value& _pfring = ippsDoc["pfring"];
-    BOOST_ASSERT(ippsDoc.HasMember("pfring"));
-    if(_pfring.HasMember("threads"))
-      BOOST_ASSERT(_pfring["threads"].IsNumber());
-    if(_pfring.HasMember("core_bind_id"))
-      BOOST_ASSERT(_pfring["core_bind_id"].IsNumber());
-    if(_pfring.HasMember("watermark"))
-      BOOST_ASSERT(_pfring["watermark"].IsNumber());
-    if(_pfring.HasMember("poll_wait_msec"))
-      BOOST_ASSERT(_pfring["poll_wait_msec"].IsNumber());
-    if(_pfring.HasMember("ring_cluster_id"))
-      BOOST_ASSERT(_pfring["ring_cluster_id"].IsNumber());
-    if(_pfring.HasMember("hw_timestamp"))
-      BOOST_ASSERT(_pfring["hw_timestamp"].IsString());
-    if(_pfring.HasMember("strip_timestamp"))
-      BOOST_ASSERT(_pfring["strip_timestamp"].IsString());
-
-    _sts = MDSUCCESS;
-
-   return(_sts);
 }
 
 MSTS ipps::configureSysLog()
@@ -210,13 +141,11 @@ MSTS ipps::configureComChannels()
 MSTS ipps::configurePfring()
 {
     MSTS    _sts = MDERROR;
-    //check https://github.com/ntop/PF_RING/blob/dev/userland/lib/pfring.h
-    //check https://github.com/ntop/PF_RING/blob/v6.4.1/userland/examples/pfcount.c
     //Use clustering and all each thread reads individual or bonded interface
     std::vector<mthread*>::iterator ppthd;
     for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
     {
-        mpfring* _pRing = new mpfring(&ippsDoc);
+        mpfring* _pRing = new mpfring(getVerbose(),pMIppsLog,&ippsDoc);
         _sts = _pRing->init();
         if(MDSUCCESS != _sts)
             break;
@@ -236,8 +165,7 @@ MSTS ipps::configureThds()
      MSTS            _sts = MDERROR;
      const Value&    _log = ippsDoc["log"];
      string          _location(_log["dir_location"].GetString());
-     const Value&    _pfring = ippsDoc["pfring"];
-     int             _nThds = _pfring["threads"].GetInt();
+     int             _nThds = ippsDoc["threads"].GetInt();
 
     //registers all threads. each thread has its own class context
     for(int _i = 0; _i < _nThds; _i++)

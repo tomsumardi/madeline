@@ -70,6 +70,7 @@ class ipps : public madeline{
     //logging
     std::shared_ptr<spdlog::logger>     pMIppsLog;
     Document                            ippsDoc;
+    Document                            ippsSchema;
     spdlog::level::level_enum           eLogLvl;
     //thread mgmt
     vector<mthread*>                    vpThreads;

@@ -1,4 +1,4 @@
- {
+{
   "version": "1.0.1",
   "log": {
     "dir_location": "/tmp/ipps",
@@ -6,44 +6,30 @@
     "num": 5,
     "level": "debug"
     },
-  "pfring": {
-    "threads": 3,
+  "threads": 3,
+  "interfaces_in": {
+    "direction": "rx",
     "core_bind_id":1,
     "watermark": 10,
     "poll_wait_msec":100,
     "ring_cluster_id":55,
-    "hw_timestamp":"no",
-    "strip_timestamp":"yes"
+    "pcap_filters": [
+      "tcp port 80",
+      "udp port 80"
+    ],
+    "l3_blacklists": [
+      "192.168.56.2",
+      "192.168.56.3"
+    ],
+    "name": ["enp0s3"]
    },
-  "interfaces_in": [
-    {
-      "name": "eth0",
-      "direction": "rx",
-      "pcap_filters": [
-        "tcp port 80",
-        "udp port 80"
-      ],
-      "l3_blacklists": [
-        "192.168.56.2",
-        "192.168.56.3"
-      ]
-    },
-    {
-      "name": "eth1",
-      "direction": "tx",
-      "pcap_filters": [
-        "tcp port 8080",
-        "udp port 8080"
-      ],
-      "l3_blacklists": [
-        "192.168.57.2",
-        "192.168.57.3"
-      ]
-    }
-  ],
-  "interfaces_out": [
-    {
-      "name": "eth2"
-    }
-  ]
+   "interfaces_out": {
+    "direction": "tx",
+    "core_bind_id":2,
+    "watermark": 10,
+    "poll_wait_msec":100,
+    "ring_cluster_id":80,
+      "name": ["enp0s8"]
+   }
 }
+

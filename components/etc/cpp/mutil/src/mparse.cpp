@@ -1,43 +1,41 @@
 #include "mparse.h"
 
-MSTS mutilMparse::read()
+string mutilMparse::read(string strFpathName)
 {
-    MSTS    _sts = MDERROR;
+    string    _strTxt = "";
 
     try
     {
         ifstream    _f;
         string      _strLine;
-        _f.open (strJsonLoc);
+        _f.open (strFpathName);
         if (_f.is_open())
         {
             while(!_f.eof())
             {
                 getline(_f,_strLine);
-                strJsonTxt +=_strLine;
+                _strTxt +=_strLine;
             }
             _f.close();
-            _sts = MDSUCCESS;
         }
     }
     catch (exception const& e)
     {
       cerr << e.what() << endl;
     }
-    return _sts;
+    return _strTxt;
 }
 
-MSTS mutilMparse::parse()
+MSTS mutilMparse::parse(string strJTxt, Document* pJDoc)
 {
     MSTS    _sts = MDERROR;
     try
     {
         pMIppsLog->debug("unmarshalling: {}",strJsonLoc);
-        pMIppsLog->debug("{}",strJsonTxt);
+        pMIppsLog->debug("{}",strJTxt);
 
-        pJsonDoc->Parse(strJsonTxt.c_str());
-        BOOST_ASSERT(pJsonDoc->IsObject());
-
+        pJDoc->Parse(strJTxt.c_str());
+        BOOST_ASSERT(pJDoc->IsObject());
         _sts = MDSUCCESS;
     }
     catch (exception const& e)
@@ -49,23 +47,57 @@ MSTS mutilMparse::parse()
 
 MSTS mutilMparse::processJson()
 {
-    MSTS    _sts = MDERROR;
+    MSTS      _sts = MDERROR;
+    string    _strTxt = "";
     do
     {
-        _sts = mutilMparse::read();
-         if(_sts != MDSUCCESS)
+         _strTxt = mutilMparse::read(strJsonLoc);
+         if(boost::iequals(_strTxt,""))
          {
-             pMIppsLog->debug("failed to read json input file");
+             pMIppsLog->error("failed to read json input file {}",strJsonLoc);
              break;
          }
-         _sts = mutilMparse::parse();
+         _sts = mutilMparse::parse(_strTxt,pJsonDoc);
          if(_sts != MDSUCCESS)
          {
-             pMIppsLog->debug("failed to parse json input file");
+             pMIppsLog->error("failed to parse json input file {}",strJsonLoc);
              break;
          }
+         _strTxt = mutilMparse::read(strSchemaLoc);
+         if(boost::iequals(_strTxt,""))
+         {
+             pMIppsLog->error("failed to read json input file {}",strSchemaLoc);
+             break;
+         }
+         _sts = mutilMparse::parse(_strTxt,pSchemaDoc);
+         if(_sts != MDSUCCESS)
+         {
+             pMIppsLog->error("failed to parse json input file {}",strSchemaLoc);
+             break;
+         }
+         _sts = MDSUCCESS;
     }while(FALSE);
 
+    return _sts;
+}
+
+MSTS mutilMparse::validate()
+{
+    MSTS    _sts = MDSUCCESS;
+    SchemaDocument schema(*pSchemaDoc); // Compile a Document to SchemaDocument
+    SchemaValidator validator(schema);
+    if (!pJsonDoc->Accept(validator)) {
+        // Input JSON is invalid according to the schema
+        // Output diagnostic information
+        StringBuffer sb;
+        validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+        pMIppsLog->error("Invalid schema: {}", sb.GetString());
+        pMIppsLog->error("Invalid keyword: {}", validator.GetInvalidSchemaKeyword());
+        sb.Clear();
+        validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+        pMIppsLog->error("Invalid document: {}", sb.GetString());
+        _sts = MDERROR;
+    }
     return _sts;
 }
 
