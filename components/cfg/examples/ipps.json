@@ -6,16 +6,16 @@
     "num": 5,
     "level": "debug"
     },
-  "threads": 3,
+  "threads": 1,
   "interfaces_in": {
     "direction": "rx",
     "core_bind_id":1,
-    "watermark": 10,
-    "poll_wait_msec":100,
+    "watermark": 100,
+    "poll_wait_msec":10,
     "ring_cluster_id":55,
     "pcap_filters": [
-      "tcp port 80",
-      "udp port 80"
+      "tcp port 443",
+      "udp port 443"
     ],
     "l3_blacklists": [
       "192.168.56.2",

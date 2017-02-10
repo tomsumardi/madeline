@@ -8,10 +8,17 @@
 using namespace std;
 
 #define IPPS_MTHREAD_SLEEP_SEC      1
+#define IPPS_NO_ZC_BUFFER_LEN       9000
+#define THDLOG  pThdLog
 
 class mthread{
     public:
-        mthread(bool bver,mlogging* pThdLogDoc) : bVerbose(bver), bInitRdy(false),bInitError(false)
+        mthread(bool bver,mlogging* pThdLogDoc) :
+            bVerbose(bver),
+            bInitRdy(false),
+            bInitError(false),
+            pPfring(NULL),
+            waitForPacket(1)
         {
             pLogDoc = pThdLogDoc;
             pThdLog = pLogDoc->getRotateLog();
@@ -25,6 +32,7 @@ class mthread{
         void interrupt(){tmThread.interrupt();}
         void addPfring(mpfring* pRing) {pPfring = pRing;}
         bool timedJoin(boost::posix_time::time_duration timeout){return(tmThread.timed_join(timeout));}
+        void utilPrintPacket(const struct pfring_pkthdr *h, const u_char *p, int32_t tzone);
         bool isInitError()
         {
             bool _bVal;
@@ -58,6 +66,7 @@ class mthread{
             mtx_bInitRdy.unlock();
         }
         void pProcessing();
+        void procPkts();
     private:
         string                          strTest;
         bool                            bVerbose;
@@ -69,6 +78,9 @@ class mthread{
         boost::mutex                    mtx_bInitError;
         bool                            bInitError;
         mpfring*                        pPfring;
+        unsigned char                   waitForPacket;
+        //static buffer is fine
+        u_char                          buffer[IPPS_NO_ZC_BUFFER_LEN];
 };
 
 #endif /* _MTHREADS_H_ */

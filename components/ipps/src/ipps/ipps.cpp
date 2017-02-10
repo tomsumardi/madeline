@@ -26,19 +26,19 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           _context = g_option_context_new ("- IPPS");
           if(NULL == _context)
           {
-              pMIppsLog->error("option context create failure");
+              IPPSLOG->error("option context create failure");
               break;
           }
           g_option_context_add_main_entries (_context, entries, NULL);
           if (!g_option_context_parse (_context, &argc, &argv, &_error))
           {
-              pMIppsLog->error("option parsing failed: {}",_error->message);
+              IPPSLOG->error("option parsing failed: {}",_error->message);
               break;
           };
           _strHelpMenu = g_option_context_get_help(_context,TRUE, NULL);
           if(NULL == _strHelpMenu)
           {
-              pMIppsLog->error("option get help failed");
+              IPPSLOG->error("option get help failed");
               break;
           }
           if(_bVerbose)
@@ -51,12 +51,12 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           }
           if(!_strIppsConfig)
           {
-              pMIppsLog->error("error, you must specify -i");
+              IPPSLOG->error("error, you must specify -i");
               break;
           }
           if(!_strIppsSchm)
           {
-              pMIppsLog->error("error, you must specify -s");
+              IPPSLOG->error("error, you must specify -s");
               break;
           }
           //use c++ rapidJson libary to parse json
@@ -64,17 +64,17 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           //TODO: dangerous passing pointer document here, will need to do
           //deep copy within the parser class and return document
           mutilMparse jsonParser(_strIppsConfig,&ippsDoc,
-                  _strIppsSchm,&ippsSchema,pMIppsLog);
+                  _strIppsSchm,&ippsSchema,IPPSLOG);
           _sts = jsonParser.processJson();
           if(MDSUCCESS != _sts)
           {
-              pMIppsLog->error("failed to parse json file, {}",_strIppsConfig);
+              IPPSLOG->error("failed to parse json file, {}",_strIppsConfig);
               break;
           }
           _sts = jsonParser.validate();
           if(MDSUCCESS != _sts)
           {
-              pMIppsLog->error("failed to validate json file, {}",_strIppsConfig);
+              IPPSLOG->error("failed to validate json file, {}",_strIppsConfig);
               break;
           }
           _sts = MDSUCCESS;
@@ -109,7 +109,7 @@ MSTS ipps::configureSysLog()
             _lvl = MD_LOFF;
         else
         {
-            pMIppsLog->error("invalid log level input: \"{}\" valid inputs: "\
+            IPPSLOG->error("invalid log level input: \"{}\" valid inputs: "\
                     "trace,debug,info,warn,error,crit",_log["level"].GetString());
             break;
         }
@@ -126,7 +126,7 @@ MSTS ipps::configureSysLog()
         _sts = _ippsmlog.addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
         if(MDSUCCESS != _sts)
             break;
-        pMIppsLog = _ippsmlog.getRotateLog();
+        IPPSLOG = _ippsmlog.getRotateLog();
         _sts = MDSUCCESS;
     }while(FALSE);
 
@@ -145,10 +145,13 @@ MSTS ipps::configurePfring()
     std::vector<mthread*>::iterator ppthd;
     for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
     {
-        mpfring* _pRing = new mpfring(getVerbose(),pMIppsLog,&ippsDoc);
+        mpfring* _pRing = new mpfring(getVerbose(),IPPSLOG,&ippsDoc);
         _sts = _pRing->init();
         if(MDSUCCESS != _sts)
+        {
+            IPPSLOG->error("failure pfring initialization");
             break;
+        }
         (*ppthd)->addPfring(_pRing);
     }
 
@@ -174,7 +177,7 @@ MSTS ipps::configureThds()
         mlogging* _pThdLogDoc = new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl);
         if(!_pThdLogDoc)
         {
-            pMIppsLog->error("error malloc logging object for pktproc threads");
+            IPPSLOG->error("error malloc logging object for pktproc threads");
             break;
         }
         _sts = _pThdLogDoc->addRotate(_log["size_mb"].GetInt()*1024*1024,_log["num"].GetInt());
@@ -184,7 +187,7 @@ MSTS ipps::configureThds()
         mthread* _ppThd = new mthread(getVerbose(),_pThdLogDoc);
         if(!_ppThd)
         {
-            pMIppsLog->error("error malloc threads");
+            IPPSLOG->error("error malloc threads");
             break;
         }
         vpThreads.push_back(_ppThd);
@@ -236,13 +239,13 @@ MSTS ipps::runThds()
                 if ((*ppthd)->timedJoin(_timeout))
                 {
                     //finished
-                    pMIppsLog->info("Worker threads finished");
+                    IPPSLOG->info("Worker threads finished");
                     break;
                 }
                 else
                 {
                     //Not finished;
-                    pMIppsLog->info("Worker threads not finished");
+                    IPPSLOG->info("Worker threads not finished");
                 }
                 boost::this_thread::sleep(boost::posix_time::seconds(1));
             }
@@ -250,7 +253,7 @@ MSTS ipps::runThds()
         _sts = MDSUCCESS;
     }
     else
-        pMIppsLog->error("failure init one of the threads");
+        IPPSLOG->error("failure init one of the threads");
 
     return(_sts);
 }

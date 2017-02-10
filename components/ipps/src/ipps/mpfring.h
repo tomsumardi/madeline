@@ -28,13 +28,17 @@
 class mpfring {
 
   public:
-    mpfring(bool bver, std::shared_ptr<spdlog::logger> pLog, Document *pInDoc) : bVerbose(bver) 
+    mpfring(bool bver, std::shared_ptr<spdlog::logger> pLog, Document *pInDoc) :
+        bVerbose(bver),pdIn(NULL), pdOut(NULL)
     {
          pMIppsLog = pLog;
         //Do deep copy here.
         ippsDoc.CopyFrom(*pInDoc, ippsDoc.GetAllocator());
+
     }
     MSTS    init();
+    pfring* getPfringIngress(){return pdIn;}
+    pfring* getPfringEgress(){return pdOut;}
    // log()
 
   private:

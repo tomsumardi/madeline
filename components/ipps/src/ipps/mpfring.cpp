@@ -16,10 +16,12 @@ MSTS mpfring::init()
         bool    _bHwTimeStamp       = IPPS_MPFRING_IN_HW_TIMESTAMP;
         bool    _bStripTimeStamp    = IPPS_MPFRING_IN_STRIP_TIMESTAMP;
         int     _nSnapLength        = IPPS_MPFRING_IN_SNAPLENGTH;
-        unsigned long _flags        = 0;
+        u_int32_t _flags        = 0;
+        u_char  _mac_address[6] = { 0 };
+        char    _buf[32];
 
         _nThreads = ippsDoc["threads"].GetInt();
-        pMIppsLog->debug("threads: {}",_nThreads);
+        IPPSLOG->debug("threads: {}",_nThreads);
         if(ippsDoc.HasMember("interfaces_in"))
         {
             const Value& _intfField = ippsDoc["interfaces_in"];
@@ -56,28 +58,115 @@ MSTS mpfring::init()
                 if (_i < _lstNames.Size()-1)
                     _strIntfName += ",";
             }
-            pMIppsLog->debug("interfaces_in/snaplen: {}",_nSnapLength);
-            pMIppsLog->debug("interfaces_in/direction: {}",_strDirection);
-            pMIppsLog->debug("interfaces_in/core_bind_id: {}",_nBindId);
-            pMIppsLog->debug("interfaces_in/watermark: {}",_nWatermark);
-            pMIppsLog->debug("interfaces_in/poll_wait_msec: {}",_nPollWaitMsec);
-            pMIppsLog->debug("interfaces_in/ring_cluster_id: {}",_nRingClusterId);
-            pMIppsLog->debug("interfaces_in/hw_timestamp: {}",_bHwTimeStamp);
-            pMIppsLog->debug("interfaces_in/strip_timestamp: {}",_bStripTimeStamp);
-            pMIppsLog->debug("interfaces_in/name: {}",_strIntfName);
+
+            string  _strPcapFilter = "";
+            auto& _lstFilters = _intfField["pcap_filters"];
+            for (SizeType _i = 0; _i < _lstFilters.Size(); _i++)
+            {
+                _strPcapFilter += _lstFilters[_i].GetString();
+                if (_i < _lstFilters.Size()-1)
+                    _strPcapFilter += " || ";
+            }
+
+            IPPSLOG->debug("interfaces_in/snaplen: {}",_nSnapLength);
+            IPPSLOG->debug("interfaces_in/direction: {}",_strDirection);
+            IPPSLOG->debug("interfaces_in/core_bind_id: {}",_nBindId);
+            IPPSLOG->debug("interfaces_in/watermark: {}",_nWatermark);
+            IPPSLOG->debug("interfaces_in/poll_wait_msec: {}",_nPollWaitMsec);
+            IPPSLOG->debug("interfaces_in/ring_cluster_id: {}",_nRingClusterId);
+            IPPSLOG->debug("interfaces_in/hw_timestamp: {}",_bHwTimeStamp);
+            IPPSLOG->debug("interfaces_in/strip_timestamp: {}",_bStripTimeStamp);
+            IPPSLOG->debug("interfaces_in/name: {}",_strIntfName);
+            IPPSLOG->debug("interfaces_in/pcap_filters: {}",_strPcapFilter);
 
             if(_nThreads > 1)     _flags |= PF_RING_REENTRANT;
             if(_bHwTimeStamp)     _flags |= PF_RING_HW_TIMESTAMP;
             if(_bStripTimeStamp)  _flags |= PF_RING_STRIP_HW_TIMESTAMP;
             _flags |= PF_RING_LONG_HEADER | PF_RING_PROMISC;
-            /*pdIn = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
+
+            /* common from here */
+            pdIn = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
             if(!pdIn)
             {
-                pMIppsLog->error("failure to perform pfring_open on intf {}",_strIntfName);
+                IPPSLOG->error("failure to perform pfring_open on intf {}",_strIntfName);
                 break;
             }
-            pfring_close(pdIn);
-            */
+            u_int32_t _version;
+
+            pfring_set_application_name(pdIn,(char*)"ipps");
+            pfring_version(pdIn, &_version);
+
+            IPPSLOG->info("Using PF_RING v.{}.{}.{}",
+               (_version & 0xFFFF0000) >> 16,
+               (_version & 0x0000FF00) >> 8,
+               _version & 0x000000FF);
+
+            if(pfring_get_bound_device_address(pdIn, _mac_address) != 0)
+                IPPSLOG->warn("Unable to read the device address");
+            else
+            {
+                int _ifindex = -1;
+
+                pfring_get_bound_device_ifindex(pdIn, &_ifindex);
+
+                IPPSLOG->info("Capturing from {} [mac: {}][if_index: {}][speed: {}Mb/s]",
+                        (char*)_strIntfName.c_str(), etheraddrString(_mac_address, _buf),
+                   _ifindex,
+                       pfring_get_interface_speed(pdIn));
+            }
+
+            IPPSLOG->info("# Device RX channels: {}", pfring_get_num_rx_channels(pdIn));
+            IPPSLOG->info("# Polling threads:    {}", _nThreads);
+
+            /* setup bpf filtering, change this to pfring one in the future */
+            _sts = pfring_set_bpf_filter(pdIn, (char*)(_strPcapFilter.c_str()));
+            if(_sts != MDSUCCESS)
+            {
+                IPPSLOG->error("pfring_set_bpf_filter({}) returned {}", _strPcapFilter.c_str(), _sts);
+                break;
+            }
+            else
+                IPPSLOG->info("Successfully set BPF filter '{}'", _strPcapFilter.c_str());
+
+            packet_direction direction;
+            if(boost::iequals(_strDirection, "rx"))
+                direction = rx_only_direction;
+            else if(boost::iequals(_strDirection, "tx"))
+                direction = tx_only_direction;
+            else if(boost::iequals(_strDirection, "rx+tx"))
+                direction = rx_and_tx_direction;
+            else
+            {
+                IPPSLOG->error("pfring_set_direction, options are rx,tx and rx+tx");
+                break;
+            }
+            pfring_set_direction(pdIn, direction);
+            if((_sts = pfring_set_socket_mode(pdIn, recv_only_mode)) != MDSUCCESS)
+            {
+                IPPSLOG->error("pfring_set_socket_mode returned [_sts={}]", _sts);
+                break;
+            }
+
+            if(_nWatermark > 0) {
+              if((_sts = pfring_set_poll_watermark(pdIn, _nWatermark)) != MDSUCCESS)
+              {
+                  IPPSLOG->error("pfring_set_poll_watermark returned [rc={}][watermark={}]", _sts, _nWatermark);
+                  break;
+              }
+            }
+            else
+            {
+                IPPSLOG->error("pfring_set_poll_watermark must be > 0");
+                break;
+            }
+            if(_nPollWaitMsec > 0)
+                pfring_set_poll_duration(pdIn, _nPollWaitMsec);
+
+            if(pfring_enable_ring(pdIn))
+            {
+                IPPSLOG->error("pfring enable ring failure");
+                break;
+            }
         }
         //perhaps use pfring reflection in the future.
         if(ippsDoc.HasMember("interfaces_out"))
@@ -111,30 +200,28 @@ MSTS mpfring::init()
                 if (_i < _lstNames.Size()-1)
                     _strIntfName += ",";
             }
-            pMIppsLog->debug("interfaces_out/snaplen: {}",_nSnapLength);
-            pMIppsLog->debug("interfaces_out/direction: {}",_strDirection);
-            pMIppsLog->debug("interfaces_out/core_bind_id: {}",_nBindId);
-            pMIppsLog->debug("interfaces_out/watermark: {}",_nWatermark);
-            pMIppsLog->debug("interfaces_out/poll_wait_msec: {}",_nPollWaitMsec);
-            pMIppsLog->debug("interfaces_out/ring_cluster_id: {}",_nRingClusterId);
-            pMIppsLog->debug("interfaces_out/hw_timestamp: {}",_bHwTimeStamp);
-            pMIppsLog->debug("interfaces_out/strip_timestamp: {}",_bStripTimeStamp);
-            pMIppsLog->debug("interfaces_out/name: {}",_strIntfName);
-
+            IPPSLOG->debug("interfaces_out/snaplen: {}",_nSnapLength);
+            IPPSLOG->debug("interfaces_out/direction: {}",_strDirection);
+            IPPSLOG->debug("interfaces_out/core_bind_id: {}",_nBindId);
+            IPPSLOG->debug("interfaces_out/watermark: {}",_nWatermark);
+            IPPSLOG->debug("interfaces_out/poll_wait_msec: {}",_nPollWaitMsec);
+            IPPSLOG->debug("interfaces_out/ring_cluster_id: {}",_nRingClusterId);
+            IPPSLOG->debug("interfaces_out/hw_timestamp: {}",_bHwTimeStamp);
+            IPPSLOG->debug("interfaces_out/strip_timestamp: {}",_bStripTimeStamp);
+            IPPSLOG->debug("interfaces_out/name: {}",_strIntfName);
 
             if(_nThreads > 1)     _flags |= PF_RING_REENTRANT;
             if(_bHwTimeStamp)     _flags |= PF_RING_HW_TIMESTAMP;
             if(_bStripTimeStamp)  _flags |= PF_RING_STRIP_HW_TIMESTAMP;
             _flags |= PF_RING_LONG_HEADER | PF_RING_PROMISC;
-            /*pdOut = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
+            pdOut = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
             if(!pdOut)
             {
-                pMIppsLog->error("failure to perform pfring_open on intf {}",_strIntfName);
+                IPPSLOG->error("failure to perform pfring_open on intf {}",_strIntfName);
                 break;
             }
-            pfring_close(pdOut);*/
+            pfring_close(pdOut);
         }
-
         _sts = MDSUCCESS;
     }while(FALSE);
 

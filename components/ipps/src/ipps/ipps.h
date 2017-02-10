@@ -14,6 +14,7 @@
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 #define IPPS_SYNCH_TIMEOUT_MS       500
 #define IPPS_THDJOIN_TIMEOUT_SEC    5
+#define IPPSLOG     pMIppsLog
 
 class ipps : public madeline{
   public:
@@ -23,7 +24,7 @@ class ipps : public madeline{
          string strFext,
          spdlog::level::level_enum eLvl,
          int ifsize,
-         int ifnum)
+         int ifnum) : eLogLvl(spdlog::level::trace)
     {
         try
         {
