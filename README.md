@@ -68,9 +68,13 @@ Coding guidelines for C++:
 license: TBD
 
 ## -------------------------------------------------------------
-## Pre-requisite through package manager 
+## Pre-requisite through package manager
 * gnome C library 2.46.2 (glib2)
 * C++ boost library 1.53.0 (boost-devel)
+* pfring x86_64          6.4.1-1122                     
+* pfring-dkms            6.4.1-1122 
+* pfring-drivers-zc-dkms 1.2-0
+* kernel module pf_ring.ko
 
 ## Building and running...
 
