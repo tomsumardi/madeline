@@ -142,17 +142,22 @@ MSTS ipps::configurePfring()
 {
     MSTS    _sts = MDERROR;
     //Use clustering and all each thread reads individual or bonded interface
-    std::vector<mthread*>::iterator ppthd;
+    boost::ptr_vector<mthread>::iterator ppthd;
     for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
     {
-        mpfring* _pRing = new mpfring(getVerbose(),IPPSLOG,&ippsDoc);
+        shared_ptr<mpfring> _pRing(new mpfring(getVerbose(),IPPSLOG,&ippsDoc));
+        if(!_pRing)
+        {
+            IPPSLOG->error("failure mpfring object memory allocation");
+            break;
+        }
         _sts = _pRing->init();
         if(MDSUCCESS != _sts)
         {
             IPPSLOG->error("failure pfring initialization");
             break;
         }
-        (*ppthd)->addPfring(_pRing);
+        ppthd->addPfring(_pRing);
     }
 
     return(_sts);
@@ -174,7 +179,7 @@ MSTS ipps::configureThds()
     for(int _i = 0; _i < _nThds; _i++)
     {
         //setup rotating logging
-        mlogging* _pThdLogDoc = new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl);
+        std::shared_ptr<mlogging> _pThdLogDoc( new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl) );
         if(!_pThdLogDoc)
         {
             IPPSLOG->error("error malloc logging object for pktproc threads");
@@ -207,9 +212,9 @@ MSTS ipps::runThds()
 
     /* background thread scheduler */
     //1.Launch all threads
-    std::vector<mthread*>::iterator ppthd;
+    boost::ptr_vector<mthread>::iterator ppthd;
     for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
-        (*ppthd)->start();
+        ppthd->start();
     boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     //2.snchronization, wait until all threads are ready to go.
@@ -217,14 +222,14 @@ MSTS ipps::runThds()
     {
         //check if the thread is ready to go
         //shared variables are mutex protected always...
-        while(!(*ppthd)->isInitReady())
+        while(!ppthd->isInitReady())
             boost::this_thread::sleep(boost::posix_time::milliseconds(IPPS_SYNCH_TIMEOUT_MS));
-        if((*ppthd)->isInitError())
+        if(ppthd->isInitError())
         {
             _bWaitThds = false;
             break;
         }
-        (*ppthd)->interrupt();
+        ppthd->interrupt();
     }
 
     //3.wait until all threads done
@@ -236,7 +241,7 @@ MSTS ipps::runThds()
             while(1)
             {
 
-                if ((*ppthd)->timedJoin(_timeout))
+                if (ppthd->timedJoin(_timeout))
                 {
                     //finished
                     IPPSLOG->info("Worker threads finished");

@@ -10,6 +10,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 #define IPPS_SYNCH_TIMEOUT_MS       500
@@ -47,11 +48,7 @@ class ipps : public madeline{
         }
     };
     ~ipps()
-    {
-        for (std::vector<mthread*>::iterator ppThd = vpThreads.begin();
-                ppThd != vpThreads.end(); ++ppThd)
-        {delete(*ppThd);}
-    }
+    {}
     Document* getIppsJsonDoc() {return(&ippsDoc);}
     MSTS validateIppsJsonDocs();
     std::shared_ptr<spdlog::logger> getSysLogHandler(){return(pMIppsLog);}
@@ -74,7 +71,7 @@ class ipps : public madeline{
     Document                            ippsSchema;
     spdlog::level::level_enum           eLogLvl;
     //thread mgmt
-    vector<mthread*>                    vpThreads;
+    boost::ptr_vector<mthread>          vpThreads;
 
     //thdmgmt                             threads;
     //ippsPfring  pring;

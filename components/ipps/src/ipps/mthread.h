@@ -13,24 +13,20 @@ using namespace std;
 
 class mthread{
     public:
-        mthread(bool bver,mlogging* pThdLogDoc) :
+        mthread(bool bver,std::shared_ptr<mlogging> pThdLogDoc) :
             bVerbose(bver),
+            pLogDoc(pThdLogDoc),
             bInitRdy(false),
             bInitError(false),
             pPfring(NULL),
             waitForPacket(1)
         {
-            pLogDoc = pThdLogDoc;
             pThdLog = pLogDoc->getRotateLog();
-        }
-        ~mthread()
-        {
-            delete(pLogDoc);
         }
         void start(){tmThread = boost::thread(&mthread::pProcessing, this);}
         void join(){tmThread.join();}
         void interrupt(){tmThread.interrupt();}
-        void addPfring(mpfring* pRing) {pPfring = pRing;}
+        void addPfring(shared_ptr<mpfring> pRing) {pPfring = pRing;}
         bool timedJoin(boost::posix_time::time_duration timeout){return(tmThread.timed_join(timeout));}
         void utilPrintPacket(const struct pfring_pkthdr *h, const u_char *p, int32_t tzone);
         bool isInitError()
@@ -71,13 +67,13 @@ class mthread{
         string                          strTest;
         bool                            bVerbose;
         boost::thread                   tmThread;
-        mlogging*                       pLogDoc;
+        std::shared_ptr<mlogging>       pLogDoc;
         std::shared_ptr<spdlog::logger> pThdLog;
         boost::mutex                    mtx_bInitRdy;
         bool                            bInitRdy;
         boost::mutex                    mtx_bInitError;
         bool                            bInitError;
-        mpfring*                        pPfring;
+        shared_ptr<mpfring>             pPfring;
         unsigned char                   waitForPacket;
         //static buffer is fine
         u_char                          buffer[IPPS_NO_ZC_BUFFER_LEN];
