@@ -68,9 +68,13 @@ Coding guidelines for C++:
 license: TBD
 
 ## -------------------------------------------------------------
-## Pre-requisite through package manager 
+## Pre-requisite through package manager
 * gnome C library 2.46.2 (glib2)
 * C++ boost library 1.53.0 (boost-devel)
+* pfring x86_64          6.4.1-1122                     
+* pfring-dkms            6.4.1-1122 
+* pfring-drivers-zc-dkms 1.2-0
+* kernel module pf_ring.ko
 
 ## Building and running...
 
@@ -125,15 +129,15 @@ Application Options:
   -v, --verbose           verbose
   -a, --standalone        standalone, no MS
   -i, --ippsconf=file     ipps config
+  -s, --ippsschm=file     ipps schema
   
  Example:
- src/main/ipps -i ../cfg/examples/ipps.json -s ../cfg/examples/system.json 
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_2] [info] Worker thread interrupted, processing packets..
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_2] [info] thread ID:7f8e93027700 pulling packets..
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_1] [info] Worker thread interrupted, processing packets..
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_1] [info] thread ID:7f8e93828700 pulling packets..
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_0] [info] Worker thread interrupted, processing packets..
-[2017-01-24 17:40:38.821] [/tmp/ipps/ppthd_0] [info] thread ID:7f8e94029700 pulling packets..
+ [xxxx@centos7-dev ipps]$ sudo src/main/ipps -i ../cfg/examples/ipps.json -s ../cfg/schema/ipps.jschema
+[2017-02-10 01:15:06.916] [/tmp/ipps/ppthd_0] [info] Worker thread interrupted, processing packets..
+[2017-02-10 01:15:06.916] [/tmp/ipps/ppthd_0] [info] thread ID:7ff5d9ec8700 pulling packets..
+[2017-02-10 01:15:10.839] [/tmp/ipps/ppthd_0] [info] 01:15:10.837638002 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960001] [caplen=60][len=60][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=58]
+[2017-02-10 01:15:10.839] [/tmp/ipps/ppthd_0] [info] 01:15:10.838159047 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960002] [caplen=60][len=60][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=54]
+[2017-02-10 01:15:10.865] [/tmp/ipps/ppthd_0] [info] 01:15:10.856716159 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960002] [caplen=2048][len=2894][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=54]
 ...
 ```
 * cs: 
