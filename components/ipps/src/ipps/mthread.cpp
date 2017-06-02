@@ -5,9 +5,12 @@ using namespace std;
 void mthread :: procPkts()
 {
     struct pfring_pkthdr _hdr;
+    MSTS                 _stsIn;
+    int                  _pktSent;
     MSTS                 _sts;
     u_char *             _pbuffer = mthread::buffer;
     pfring*              _pdIn = pPfring->getPfringIngress();
+    pfring*              _pdOut = pPfring->getPfringEgress();
     int32_t              _tzone = gmt_to_local(0);
 
     /* pin to a core, this is later if need be
@@ -20,16 +23,28 @@ void mthread :: procPkts()
 
     memset(&_hdr, 0, sizeof(_hdr));
 
+    /*int ifIdx;
+    _sts = pfring_get_device_ifindex(_pdOut, (char*)"enp0s9",&ifIdx);
+    if(MDSUCCESS != _sts)
+        THDLOG->info("pfring_get_bound_device_ifindex err, {}",_sts);*/
 
     while(1)
     {
-        if((_sts = pfring_recv(_pdIn, &_pbuffer,
+        if((_stsIn = pfring_recv(_pdIn, &_pbuffer,
                 IPPS_NO_ZC_BUFFER_LEN, &_hdr, waitForPacket)) > 0)
         {
             switch(_hdr.extended_hdr.parsed_pkt.eth_type)
             {
                 case MD_IPV4:
                     utilPrintPacket(&_hdr,_pbuffer,_tzone);
+                    THDLOG->info("pfring caplen {}",_hdr.caplen);
+                    //_pktSent =  pfring_send_last_rx_packet(_pdIn, ifIdx);
+                    _pktSent = pfring_send(_pdOut, (char*)_pbuffer, _hdr.caplen,1);
+                    if(_pktSent < 0)
+                        THDLOG->info("pfring_send err, {}",_pktSent);
+                    _sts = pfring_flush_tx_packets(_pdOut);
+                    if(MDSUCCESS != _sts)
+                        THDLOG->info("pfring_flush_tx_packets err, {}",_sts);
                     break;
 
                 case MD_IPV6:

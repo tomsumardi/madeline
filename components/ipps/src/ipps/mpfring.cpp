@@ -5,25 +5,27 @@ MSTS mpfring::init()
 {
     MSTS    _sts                = MDERROR;
     int     _nThreads           = IPPS_MPFRING_THREADS;
+    u_char  _mac_address[6]     = { 0 };
+    char    _buf[32];
 
     do
     {
-        string  _strDirection       = IPPS_MPFRING_IN_DIRECTION;
-        int     _nBindId            = IPPS_MPFRING_IN_BINDID;
-        int     _nWatermark         = IPPS_MPFRING_IN_WATERMARK;
-        int     _nPollWaitMsec      = IPPS_MPFRING_IN_POLLWAIT_MSEC;
-        int     _nRingClusterId     = IPPS_MPFRING_IN_RING_CLUSTERID;
-        bool    _bHwTimeStamp       = IPPS_MPFRING_IN_HW_TIMESTAMP;
-        bool    _bStripTimeStamp    = IPPS_MPFRING_IN_STRIP_TIMESTAMP;
-        int     _nSnapLength        = IPPS_MPFRING_IN_SNAPLENGTH;
-        u_int32_t _flags        = 0;
-        u_char  _mac_address[6] = { 0 };
-        char    _buf[32];
-
         _nThreads = ippsDoc["threads"].GetInt();
         IPPSLOG->debug("threads: {}",_nThreads);
+
         if(ippsDoc.HasMember("interfaces_in"))
         {
+            MSTS    _intfSts;
+            string  _strDirection       = IPPS_MPFRING_IN_DIRECTION;
+            int     _nBindId            = IPPS_MPFRING_IN_BINDID;
+            int     _nWatermark         = IPPS_MPFRING_IN_WATERMARK;
+            int     _nPollWaitMsec      = IPPS_MPFRING_IN_POLLWAIT_MSEC;
+            int     _nRingClusterId     = IPPS_MPFRING_IN_RING_CLUSTERID;
+            bool    _bHwTimeStamp       = IPPS_MPFRING_IN_HW_TIMESTAMP;
+            bool    _bStripTimeStamp    = IPPS_MPFRING_IN_STRIP_TIMESTAMP;
+            int     _nSnapLength        = IPPS_MPFRING_IN_SNAPLENGTH;
+            u_int32_t _flags            = 0;
+
             const Value& _intfField = ippsDoc["interfaces_in"];
             if(_intfField.HasMember("direction"))
                 _strDirection = _intfField["direction"].GetString();
@@ -119,10 +121,10 @@ MSTS mpfring::init()
             IPPSLOG->info("# Polling threads:    {}", _nThreads);
 
             /* setup bpf filtering, change this to pfring one in the future */
-            _sts = pfring_set_bpf_filter(pdIn, (char*)(_strPcapFilter.c_str()));
-            if(_sts != MDSUCCESS)
+            _intfSts = pfring_set_bpf_filter(pdIn, (char*)(_strPcapFilter.c_str()));
+            if(_intfSts != MDSUCCESS)
             {
-                IPPSLOG->error("pfring_set_bpf_filter({}) returned {}", _strPcapFilter.c_str(), _sts);
+                IPPSLOG->error("pfring_set_bpf_filter({}) returned {}", _strPcapFilter.c_str(), _intfSts);
                 break;
             }
             else
@@ -141,16 +143,19 @@ MSTS mpfring::init()
                 break;
             }
             pfring_set_direction(pdIn, direction);
-            if((_sts = pfring_set_socket_mode(pdIn, recv_only_mode)) != MDSUCCESS)
+            _intfSts = pfring_set_socket_mode(pdIn, recv_only_mode);
+            if(MDSUCCESS != _intfSts)
             {
-                IPPSLOG->error("pfring_set_socket_mode returned [_sts={}]", _sts);
+                IPPSLOG->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
                 break;
             }
 
-            if(_nWatermark > 0) {
-              if((_sts = pfring_set_poll_watermark(pdIn, _nWatermark)) != MDSUCCESS)
+            if(_nWatermark > 0)
+            {
+              _intfSts = pfring_set_poll_watermark(pdIn, _nWatermark);
+              if(MDSUCCESS != _intfSts)
               {
-                  IPPSLOG->error("pfring_set_poll_watermark returned [rc={}][watermark={}]", _sts, _nWatermark);
+                  IPPSLOG->error("pfring_set_poll_watermark returned [rc={}][watermark={}]", _intfSts, _nWatermark);
                   break;
               }
             }
@@ -171,6 +176,7 @@ MSTS mpfring::init()
         //perhaps use pfring reflection in the future.
         if(ippsDoc.HasMember("interfaces_out"))
         {
+            MSTS    _intfSts;
             string  _strDirection       = IPPS_MPFRING_OUT_DIRECTION;
             int     _nBindId            = IPPS_MPFRING_OUT_BINDID;
             int     _nWatermark         = IPPS_MPFRING_OUT_WATERMARK;
@@ -220,10 +226,62 @@ MSTS mpfring::init()
                 IPPSLOG->error("failure to perform pfring_open on intf {}",_strIntfName);
                 break;
             }
-            pfring_close(pdOut);
+            u_int32_t _version;
+
+            pfring_set_application_name(pdOut,(char*)"ipps");
+            pfring_version(pdOut, &_version);
+
+            IPPSLOG->info("Using PF_RING v.{}.{}.{}",
+               (_version & 0xFFFF0000) >> 16,
+               (_version & 0x0000FF00) >> 8,
+               _version & 0x000000FF);
+
+            /*if(_nWatermark > 0)
+            {
+                _intfSts = pfring_set_tx_watermark(pdOut, _nWatermark);
+                if(MDSUCCESS != _intfSts)
+                {
+                    IPPSLOG->error("pfring_set_tx_watermark() failed [rc={}]", _intfSts);
+                    break;
+                }
+            }*/
+            packet_direction direction;
+            if(boost::iequals(_strDirection, "rx"))
+                direction = rx_only_direction;
+            else if(boost::iequals(_strDirection, "tx"))
+                direction = tx_only_direction;
+            else if(boost::iequals(_strDirection, "rx+tx"))
+                direction = rx_and_tx_direction;
+            else
+            {
+                IPPSLOG->error("pfring_set_direction, options are rx,tx and rx+tx");
+                break;
+            }
+            pfring_set_direction(pdIn, direction);
+            _intfSts = pfring_set_socket_mode(pdOut, send_only_mode);
+            if(MDSUCCESS != _intfSts)
+            {
+                IPPSLOG->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
+                break;
+            }
+
+            if(MDSUCCESS != pfring_enable_ring(pdOut))
+            {
+                IPPSLOG->error("Unable to enable egress ring");
+                break;
+            }
         }
         _sts = MDSUCCESS;
     }while(FALSE);
+
+    /* perform cleanup in case of error */
+    if(MDSUCCESS != _sts)
+    {
+        if(pdIn)
+            pfring_close(pdIn);
+        if(pdOut)
+            pfring_close(pdOut);
+    }
 
     return _sts;
 }

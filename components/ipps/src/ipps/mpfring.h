@@ -15,7 +15,7 @@
 #define IPPS_MPFRING_IN_SNAPLENGTH         2048
 #define IPPS_MPFRING_IN_DIRECTION          "rx"
 
-//Default settings ingress
+//Default settings egress
 #define IPPS_MPFRING_OUT_BINDID             2
 #define IPPS_MPFRING_OUT_WATERMARK          100
 #define IPPS_MPFRING_OUT_POLLWAIT_MSEC      10
@@ -34,6 +34,10 @@ class mpfring {
          pMIppsLog = pLog;
         //Do deep copy here.
         ippsDoc.CopyFrom(*pInDoc, ippsDoc.GetAllocator());
+        /* Pfring ingress descriptor */
+        pdIn = NULL;
+        /* Pfring ingress descriptor */
+        pdOut = NULL;
 
     }
     MSTS    init();
