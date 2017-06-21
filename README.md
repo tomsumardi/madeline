@@ -9,14 +9,10 @@
 Madeline is high performance packet router/recorder that can be used to perform OTT Video caching default use case, which includes simple REST API endpoint, packet routing engine and video caching server.
 The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of storage backend such as ceph.
 
-### Motivation:
-Caching video online content on the ISP edges to provide better customer viewing experience. 
-
 ### Summary:
-Madeline is out-of/in-band inline (realtime) packet router/recorder that can be used to perform OTT Video (MPEG-DASH/apple HLS/etc) caching default use case based on regular expression or ip address/port tuple logic rulesets. 
-It must be fast in order to perform intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack. 
-The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. 
-Filtering will be done on packet-processing and http processing components and in the end interesting packets will be redirected to the caching web server such nginx/httpd/etc.
+Madeline is out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
+- In active mode, it can be used to perform OTT Video (MPEG-DASH/apple HLS/etc) caching based on regular expression or ip address/port tuple logic rulesets by injecting data into the packet payload. 
+- In passive mode, it can be used to perform traffic recording using object store storage backend.
 
 Note: 
   - this is my second attempt, total rewrite the original application specific monolithic design
