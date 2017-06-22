@@ -35,9 +35,9 @@ Note: per-component design details provided within design folder
 * Design Document wiki pages: 
  - High level: https://github.com/tomsumardi/madeline/wiki/Architecture
  - RXTXAL: https://github.com/tomsumardi/madeline/wiki/RXTXAL
- - IPPS: https://github.com/tomsumardi/madeline/wiki/
- - PPP: https://github.com/tomsumardi/madeline/wiki/
- - PHS: https://github.com/tomsumardi/madeline/wiki/
+ - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
+ - PPP: https://github.com/tomsumardi/madeline/wiki/PPP
+ - PHS: https://github.com/tomsumardi/madeline/wiki/??
  - JSON schema and examples: https://github.com/tomsumardi/madeline/wiki/JSON-schemas-and-examples
 
 * Test (anything non-https):
