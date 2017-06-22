@@ -33,7 +33,7 @@ Note: per-component design details provided within design folder
 ### Resources:
 
 * Design Document wiki pages: 
- - High level: https://github.com/tomsumardi/madeline/wiki
+ - High level: https://github.com/tomsumardi/madeline/wiki/Architecture
  - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
  - PPP: https://github.com/tomsumardi/madeline/wiki/PPP
  - PHS: https://github.com/tomsumardi/madeline/wiki/PHS
