@@ -1,12 +1,10 @@
-#Madeline
-
 ### Status: 
 - C++ logging 
 - working on ipps (c++)....
 
 ## -------------------------------------------------------------
 ## Project Intro and Vision:
-Madeline is high performance packet router/recorder that can be used to perform OTT Video caching default use case, which includes simple REST API endpoint, packet routing engine and video caching server. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of storage backend such as ceph.
+Madeline is high performance packet router/recorder. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of object storage backend such as ceph.
 
 ### Summary:
 Madeline is out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
@@ -28,7 +26,7 @@ Note:
 
 ### Resources:
 
-* Design Document wiki pages: 
+#### Design Document wiki pages: 
  - High level: https://github.com/tomsumardi/madeline/wiki/Architecture
  - RXTXAL: https://github.com/tomsumardi/madeline/wiki/RXTXAL
  - IPPS: https://github.com/tomsumardi/madeline/wiki/IPPS
@@ -36,18 +34,19 @@ Note:
  - PHS: https://github.com/tomsumardi/madeline/wiki/PHS
  - JSON schema and examples: https://github.com/tomsumardi/madeline/wiki/JSON-schemas-and-examples
 
-* Test (anything non-https):
+#### Test (anything non-https):
  - active mode caching espn, amazon streaming, HBOgo, dailymotion, etc
  - passive mode object storage cluster
 
-* Development environment: Virtual Machine running CentOS 7.x.
+#### Development environment: 
+ - Virtual Machine running CentOS 7.x.
 
-* Lab Requirements:
+#### Lab Requirements:
  - any cheap L3 router/switch
  - any x86 laptop with 3 ethernet ports (mgmt,input,output)
  - Dualcomm model No.DCSW-1005 5-port 10/100Base-T Ethernet Switch TAP 
 
-license: TBD
+#### license: TBD
 
 ## -------------------------------------------------------------
 ## Pre-requisite through package manager
@@ -134,14 +133,14 @@ cd <install-home>/madeline/components/ipps/scripts
 ./refresh-automake.sh
 ```
 
-### My Old Code References:
+### Misc
+#### My Old Code References:
 * trans cache ("C" and Makefile code): 
 https://github.com/tomsumardi/laguna/tree/master/1.0/src
 * gateway discovery (python):
 https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_caching_1.0.0/usr/local/bin/transparent_caching/gwdisc.py
 
-Coding guidelines for C++:
+#### Coding guidelines for C++:
 - https://google.github.io/styleguide/cppguide.html
-- No C++ exceptions handling, do simple C style error return value (read google guidelines for C++ above)
 - shallow inheritance (3 level max)
 - function should have one entry and one exit point
