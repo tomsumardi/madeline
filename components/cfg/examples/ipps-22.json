@@ -14,14 +14,14 @@
     "poll_wait_msec":10,
     "ring_cluster_id":55,
     "pcap_filters": [
-      "tcp port 80",
-      "udp port 80"
+      "tcp port 22",
+      "udp port 22"
     ],
     "l3_blacklists": [
       "192.168.56.2",
       "192.168.56.3"
     ],
-    "name": ["enp0s3"]
+    "name": ["enp0s8"]
    },
    "interfaces_out": {
     "direction": "tx",

@@ -10,9 +10,9 @@ Makefile
 *.cache
 *.deps
 *.a
-*.docx
+#*.docx
 *.status
-*.png
+#*.png
 #ipps post build
 components/ipps/config.h
 components/ipps/config.log

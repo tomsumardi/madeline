@@ -12,6 +12,8 @@ MSTS mpfring::init()
     {
         _nThreads = ippsDoc["threads"].GetInt();
         IPPSLOG->debug("threads: {}",_nThreads);
+        // default flow to 5 tuple for rx for now
+        cluster_type cluster_hash_type = cluster_per_flow_5_tuple;
 
         if(ippsDoc.HasMember("interfaces_in"))
         {
@@ -164,6 +166,14 @@ MSTS mpfring::init()
                 IPPSLOG->error("pfring_set_poll_watermark must be > 0");
                 break;
             }
+            if(_nRingClusterId > 0)
+            {
+                _intfSts = pfring_set_cluster(pdIn, _nRingClusterId, cluster_hash_type);
+                if(MDSUCCESS != _intfSts)
+                {
+                    IPPSLOG->error("pfring_set_cluster returned {}", _intfSts);
+                }
+            }
             if(_nPollWaitMsec > 0)
                 pfring_set_poll_duration(pdIn, _nPollWaitMsec);
 
@@ -245,6 +255,14 @@ MSTS mpfring::init()
                     break;
                 }
             }*/
+            if(_nRingClusterId > 0)
+            {
+                _intfSts = pfring_set_cluster(pdIn, _nRingClusterId, cluster_hash_type);
+                if(MDSUCCESS != _intfSts)
+                {
+                    IPPSLOG->error("pfring_set_cluster returned {}", _intfSts);
+                }
+            }
             packet_direction direction;
             if(boost::iequals(_strDirection, "rx"))
                 direction = rx_only_direction;
