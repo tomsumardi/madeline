@@ -7,7 +7,7 @@
 Madeline is high performance packet router/recorder. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of object storage backend such as ceph.
 
 ### Summary:
-Madeline is out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
+Madeline is out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack or physical NIC. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
 - In active mode, it can be used to perform OTT Video (MPEG-DASH/apple HLS/etc) caching based on regular expression or ip address/port tuple logic rulesets by injecting data into the packet payload. 
 - In passive mode, it can be used to perform traffic recording using object store storage backend.
 
@@ -17,12 +17,10 @@ Note:
   - network analytics (future project) 
 
 ### components:
+* rx/tx abstraction layer (RXTXAL)
 * Interface Packet Processing Service (IPPS)
 * Packet Payload Processing (PPP)
 * Packet Handling Service (PHS)
-* Management Server (MS)
-* Caching Server (CS)
-* Simulation (SIM)
 
 ### Resources:
 
@@ -75,9 +73,7 @@ make clean
 ./configure
 make
 ```
-
-* cs: 
-* ms: 
+* rxtxal:
 * phs:
 * ppp:
 
@@ -92,8 +88,7 @@ make clean
 cd <install-home>/madeline/components/ipps
 make clean
 ```
-* cs: 
-* ms: 
+* rxtxal:
 * phs:
 * ppp:
 
@@ -120,9 +115,8 @@ Application Options:
 [2017-02-10 01:15:10.839] [/tmp/ipps/ppthd_0] [info] 01:15:10.838159047 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960002] [caplen=60][len=60][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=54]
 [2017-02-10 01:15:10.865] [/tmp/ipps/ppthd_0] [info] 01:15:10.856716159 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960002] [caplen=2048][len=2894][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=54]
 ...
-```
-* cs: 
-* ms: 
+``` 
+* rxtxal:
 * phs:
 * ppp:
 
