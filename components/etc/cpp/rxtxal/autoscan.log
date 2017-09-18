@@ -1,0 +1,2 @@
+autoscan: warning: missing AC_PROG_MAKE_SET wanted by: 
+	scripts/maintainer-cleaner.sh:3

@@ -1,0 +1,47 @@
+[tsumardi@centos7-dev ipps]$ cat src/Makefile.am 
+SUBDIRS=thdmgmt bkgrnd main
+
+[tsumardi@centos7-dev ipps]$ cat configure.ac 
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ([2.69])
+AC_INIT(ipps, 1.0.0, tsumardi@gmail.com)
+AM_INIT_AUTOMAKE(ipps, 1.0.0)
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
+AC_PROG_RANLIB
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_CHECK_HEADERS([stdlib.h string.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_CONFIG_FILES([Makefile
+                 doc/Makefile
+                 man/Makefile
+                 scripts/Makefile
+                 src/Makefile
+                 src/bkgrnd/Makefile
+                 src/logging/Makefile
+                 src/main/Makefile
+                 src/pfilter/Makefile
+                 src/thdmgmt/Makefile])
+
+AC_OUTPUT
+
+
+[tsumardi@centos7-dev ipps]$ cat src/main/Makefile.am 
+AM_CFLAGS = -I../thdmgmt
+
+bin_PROGRAMS = ipps
+ipps_SOURCES = main.c main.h test.c test.h
+ipps_LDADD = $(top_srcdir)/src/thdmgmt/libthdmgmt.a \
+             $(top_srcdir)/src/bkgrnd/libbkgrnd.a
