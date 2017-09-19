@@ -1,6 +1,9 @@
-### Status: 
-- C++ logging 
-- working on ipps (c++)....
+### TODO: 
+1. RXTXAL library
+- abstracting Pfring implementation into RXTXAL abstract adapter/bridge interface class
+2. IPPS
+- more logs, config assertions
+
 
 ## -------------------------------------------------------------
 ## Project Intro and Vision:
