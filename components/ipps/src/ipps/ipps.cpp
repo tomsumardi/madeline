@@ -145,6 +145,8 @@ MSTS ipps::configurePfring()
     boost::ptr_vector<mthread>::iterator ppthd;
     for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
     {
+        rxtxInterface* pPfring = new rxtxAdapter < pfringDPI > (new pfringDPI(), &pfringDPI::exec);
+
         shared_ptr<mpfring> _pRing(new mpfring(getVerbose(),IPPSLOG,&ippsDoc));
         if(!_pRing)
         {
@@ -199,7 +201,7 @@ MSTS ipps::configureThds()
     }
 
     _sts = MDSUCCESS;
-     
+
     return(_sts);
 }
 

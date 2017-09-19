@@ -3,11 +3,10 @@
 set -x
 
 cd ../
-#libtoolize --force
 autoscan
 #diff configure.ac configure.scan
 aclocal
 autoheader 
 autoconf
-automake --force-missing --add-missing
+automake --add-missing
 cd scripts

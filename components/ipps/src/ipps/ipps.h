@@ -3,6 +3,7 @@
 
 #include "mutil/src/madeline.h"
 #include "mutil/src/mutil.h"
+#include "rxtxal/src/rxtxal.h"
 #include "mpfring.h"
 #include "mthread.h"
 #include <iostream>

@@ -1,2 +1,25 @@
-autoscan: warning: missing AC_PROG_MAKE_SET wanted by: 
-	scripts/maintainer-cleaner.sh:3
+autoscan: warning: missing AC_CHECK_HEADER_STDBOOL wanted by: 
+	src/dpi_pfring.cpp:47
+	src/dpi_pfring.cpp:48
+	src/dpi_pfring.cpp:216
+	src/dpi_pfring.cpp:217
+	src/dpi_pfring.h:17
+	src/dpi_pfring.h:57
+	src/dpi_pfring.cpp:68
+	src/dpi_pfring.cpp:75
+	src/dpi_pfring.cpp:66
+	src/dpi_pfring.cpp:73
+autoscan: warning: missing AC_FUNC_ERROR_AT_LINE wanted by: 
+	src/dpi_pfring.cpp:116
+	src/dpi_pfring.cpp:150
+	src/dpi_pfring.cpp:165
+	src/dpi_pfring.cpp:172
+	src/dpi_pfring.cpp:181
+	src/dpi_pfring.cpp:187
+	src/dpi_pfring.cpp:195
+	src/dpi_pfring.cpp:203
+	src/dpi_pfring.cpp:257
+	src/dpi_pfring.cpp:284
+	src/dpi_pfring.cpp:296
+	src/dpi_pfring.cpp:303
+	src/dpi_pfring.cpp:309

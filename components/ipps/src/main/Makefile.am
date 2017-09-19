@@ -7,4 +7,5 @@ ipps_LDADD = \
 		     $(top_srcdir)/src/thdmgmt/libthdmgmt.a \
              $(top_srcdir)/src/ipps/libipps.a \
              $(top_srcdir)/src/pfilter/libpfilter.a \
-             $(top_srcdir)/../etc/cpp/mutil/src/libmutil.a
+             $(top_srcdir)/../etc/cpp/mutil/src/libmutil.a \
+             $(top_srcdir)/../etc/cpp/rxtxal/src/librxtxal.a

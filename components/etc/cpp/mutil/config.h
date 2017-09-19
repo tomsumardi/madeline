@@ -32,19 +32,19 @@
 #define HAVE_UNISTD_H 1
 
 /* Name of package */
-#define PACKAGE "ipps"
+#define PACKAGE "mutil"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "tsumardi@gmail.com"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "ipps"
+#define PACKAGE_NAME "mutil"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "ipps 1.0.0"
+#define PACKAGE_STRING "mutil 1.0.0"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "ipps"
+#define PACKAGE_TARNAME "mutil"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""
