@@ -1,10 +1,3 @@
-### TODO: 
-1. RXTXAL library
-- abstracting Pfring implementation into RXTXAL abstract adapter/bridge interface class
-2. IPPS
-- more logs, config assertions
-
-
 ## -------------------------------------------------------------
 ## Project Intro and Vision:
 Madeline is high performance packet router/recorder. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of object storage backend such as ceph.
@@ -69,6 +62,13 @@ make clean
 ./configure
 make
 ```
+* rxtxal:
+```
+cd <install-home>/madeline/components/etc/cpp/rxtxal
+make clean
+./configure
+make
+```
 * ipps:
 ```
 cd <install-home>/madeline/components/ipps
@@ -76,7 +76,6 @@ make clean
 ./configure
 make
 ```
-* rxtxal:
 * phs:
 * ppp:
 
@@ -86,12 +85,16 @@ make
 cd <install-home>/madeline/components/etc/cpp/mutil
 make clean
 ```
+* rxtxal:
+```
+cd <install-home>/madeline/components/rxtxal
+make clean
+```
 * ipps:
 ```
 cd <install-home>/madeline/components/ipps
 make clean
 ```
-* rxtxal:
 * phs:
 * ppp:
 
@@ -119,7 +122,6 @@ Application Options:
 [2017-02-10 01:15:10.865] [/tmp/ipps/ppthd_0] [info] 01:15:10.856716159 [RX][if_index=2][52:54:00:12:35:02 -> 08:00:27:84:99:B4] [IPv4][64.233.177.155:443 -> 10.0.2.15:37652] [l3_proto=TCP][hash=1256867967][tos=0][tcp_seq_num=1848960002] [caplen=2048][len=2894][parsed_header_len=0][eth_offset=0][l3_offset=14][l4_offset=34][payload_offset=54]
 ...
 ``` 
-* rxtxal:
 * phs:
 * ppp:
 
@@ -141,3 +143,10 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 - https://google.github.io/styleguide/cppguide.html
 - shallow inheritance (3 level max)
 - function should have one entry and one exit point
+
+#### TODO: 
+1. RXTXAL library
+- abstracting Pfring implementation into RXTXAL abstract adapter/bridge interface class
+2. IPPS
+- more logs, config assertions
+
