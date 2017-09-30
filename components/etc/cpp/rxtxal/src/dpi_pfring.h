@@ -15,38 +15,44 @@
 class pfringDPI {
   public:
       pfringDPI() {}
-      pfringDPI(bool bver, std::shared_ptr<spdlog::logger> pCLog, Document *pInDoc) :
-          bVerbose(bver),pdIn(NULL), pdOut(NULL)
+      pfringDPI(bool bver, std::shared_ptr<spdlog::logger> pLog, Document *pDoc) :
+          m_bVerbose(bver),m_waitForPacket(1), m_pLog(pLog), m_pBuffer(NULL), m_pdIn(NULL), m_pdOut(NULL)
       {
-           pLog = pCLog;
           //Do deep copy here.
-          ippsDoc.CopyFrom(*pInDoc, ippsDoc.GetAllocator());
-          /* Pfring ingress descriptor */
-          pdIn = NULL;
-          /* Pfring ingress descriptor */
-          pdOut = NULL;
+          m_ippsDoc.CopyFrom(*pDoc, m_ippsDoc.GetAllocator());
+          memset(&m_pfringPktHdr, 0, sizeof(m_pfringPktHdr));
+          memset(&m_pktHdr, 0, sizeof(m_pktHdr));
 
       }
       ~pfringDPI() {
         cout << "pfringDPI" << "::dtor" << endl;
+        if(m_pBuffer)
+            free(m_pBuffer);
       }
-      void exec() {
-        cout << "test::exec()" << endl;
-      }
+      //pfring specific function pointer
+      rxtxal_pkthdr* getPktHeader();
       // Default operations
-      MSTS open();
-      MSTS write();
-      MSTS read();
-      MSTS close();
-      MSTS init();
-      pfring* getPfringIngress(){return pdIn;}
-      pfring* getPfringEgress(){return pdOut;}
+      MSTS      open(u_int bufSize);
+      int       write(u_int size);
+      int       read(u_int bufSize);
+      MSTS      flush();
+      MSTS      close();
+      u_char    isWaitForPacket();
+      u_char*   getBufferPtr();
+      void      printPacket(int32_t tzone);
+      // internal functions
+      char* etheraddrString(const u_char *ep, char *buf);
   private:
-      bool                                bVerbose;
-      std::shared_ptr<spdlog::logger>     pLog;
-      Document                            ippsDoc;
-      pfring*                             pdIn;
-      pfring*                             pdOut;
+      bool                                m_bVerbose;
+      unsigned char                       m_waitForPacket;
+      std::shared_ptr<spdlog::logger>     m_pLog;
+      u_char*                             m_pBuffer;
+      rxtxal_pkthdr                       m_pktHdr;
+      Document                            m_ippsDoc;
+      // Pfring specific
+      pfring*                             m_pdIn;
+      pfring*                             m_pdOut;
+      struct pfring_pkthdr                m_pfringPktHdr;
 };
 
 #endif /* _DPI_PFRING_H_ */

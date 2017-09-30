@@ -4,7 +4,7 @@
 #include "mutil/src/madeline.h"
 #include "mutil/src/mutil.h"
 #include "rxtxal/src/rxtxal.h"
-#include "mpfring.h"
+//#include "mpfring.h"
 #include "mthread.h"
 #include <iostream>
 #include <glib.h>
@@ -16,7 +16,7 @@
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 #define IPPS_SYNCH_TIMEOUT_MS       500
 #define IPPS_THDJOIN_TIMEOUT_SEC    5
-#define IPPSLOG     pMIppsLog
+#define IPPSLOG     m_pMIppsLog
 
 class ipps : public madeline{
   public:
@@ -26,7 +26,7 @@ class ipps : public madeline{
          string strFext,
          spdlog::level::level_enum eLvl,
          int ifsize,
-         int ifnum) : eLogLvl(spdlog::level::trace)
+         int ifnum) : m_eLogLvl(spdlog::level::trace)
     {
         try
         {
@@ -38,9 +38,9 @@ class ipps : public madeline{
             mlogging _ippsmlog(strDname+"/"+strFname, strFext, eLvl);
             BOOST_ASSERT(MDSUCCESS == _ippsmlog.addRotate(ifsize,ifnum));
             //track the sys log
-            pMIppsLog = _ippsmlog.getRotateLog();
-            BOOST_ASSERT(pMIppsLog);
-            pMIppsLog->flush_on(spdlog::level::trace);
+            m_pMIppsLog = _ippsmlog.getRotateLog();
+            BOOST_ASSERT(m_pMIppsLog);
+            m_pMIppsLog->flush_on(spdlog::level::trace);
         }
         catch (exception const& e)
         {
@@ -50,9 +50,9 @@ class ipps : public madeline{
     };
     ~ipps()
     {}
-    Document* getIppsJsonDoc() {return(&ippsDoc);}
+    Document* getIppsJsonDoc() {return(&m_ippsDoc);}
     MSTS validateIppsJsonDocs();
-    std::shared_ptr<spdlog::logger> getSysLogHandler(){return(pMIppsLog);}
+    std::shared_ptr<spdlog::logger> getSysLogHandler(){return(m_pMIppsLog);}
     bool getStandalone() {return(bMstandalone);}
     void setStandalone(bool bStandalone) {bMstandalone = bStandalone;}
     bool getVerbose() {return(bMverbose);}
@@ -67,16 +67,12 @@ class ipps : public madeline{
     MSTS runThds();
   private:
     //logging
-    std::shared_ptr<spdlog::logger>     pMIppsLog;
-    Document                            ippsDoc;
-    Document                            ippsSchema;
-    spdlog::level::level_enum           eLogLvl;
+    std::shared_ptr<spdlog::logger>     m_pMIppsLog;
+    Document                            m_ippsDoc;
+    Document                            m_ippsSchema;
+    spdlog::level::level_enum           m_eLogLvl;
     //thread mgmt
-    boost::ptr_vector<mthread>          vpThreads;
-
-    //thdmgmt                             threads;
-    //ippsPfring  pring;
-    //ippsThread  thread;
+    boost::ptr_vector<mthread>          m_vpThreads;
 };
 
 void ipps_print(const char *str);

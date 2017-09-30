@@ -63,8 +63,8 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           BOOST_ASSERT(ipps::getIppsJsonDoc());
           //TODO: dangerous passing pointer document here, will need to do
           //deep copy within the parser class and return document
-          mutilMparse jsonParser(_strIppsConfig,&ippsDoc,
-                  _strIppsSchm,&ippsSchema,IPPSLOG);
+          mutilMparse jsonParser(_strIppsConfig,&m_ippsDoc,
+                  _strIppsSchm,&m_ippsSchema,IPPSLOG);
           _sts = jsonParser.processJson();
           if(MDSUCCESS != _sts)
           {
@@ -91,7 +91,7 @@ MSTS ipps::configureSysLog()
     {
         spdlog::level::level_enum   _lvl;
 
-        const Value& _log = ippsDoc["log"];
+        const Value& _log = m_ippsDoc["log"];
 
         if(boost::iequals(_log["level"].GetString(), "trace"))
             _lvl = MD_LTRACE;
@@ -114,7 +114,7 @@ MSTS ipps::configureSysLog()
             break;
         }
         //Set log level
-        ipps::eLogLvl = _lvl;
+        m_eLogLvl = _lvl;
 
         // destroy all shared log pointers and recreate.
         spdlog::drop_all();
@@ -140,26 +140,21 @@ MSTS ipps::configureComChannels()
 
 MSTS ipps::configurePfring()
 {
-    MSTS    _sts = MDERROR;
+    MSTS    _sts = MDSUCCESS;
     //Use clustering and all each thread reads individual or bonded interface
     boost::ptr_vector<mthread>::iterator ppthd;
-    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
+    for (ppthd = m_vpThreads.begin() ; ppthd != m_vpThreads.end(); ++ppthd)
     {
-        rxtxInterface* pPfring = new rxtxAdapter < pfringDPI > (new pfringDPI(), &pfringDPI::exec);
-
-        shared_ptr<mpfring> _pRing(new mpfring(getVerbose(),IPPSLOG,&ippsDoc));
-        if(!_pRing)
+        shared_ptr<rxtxInterface> _pRxTx(new rxtxAdapter < pfringDPI >
+                            (new pfringDPI(getVerbose(),ppthd->getThdLogHandler(),&m_ippsDoc),
+                            &pfringDPI::getPktHeader));
+        if(!_pRxTx)
         {
-            IPPSLOG->error("failure mpfring object memory allocation");
+            _sts = MDERROR;
+            IPPSLOG->error("failure rxtx object memory allocation");
             break;
         }
-        _sts = _pRing->init();
-        if(MDSUCCESS != _sts)
-        {
-            IPPSLOG->error("failure pfring initialization");
-            break;
-        }
-        ppthd->addPfring(_pRing);
+        ppthd->addPfring(_pRxTx);
     }
 
     return(_sts);
@@ -173,15 +168,15 @@ MSTS ipps::configureFilters()
 MSTS ipps::configureThds()
 {
      MSTS            _sts = MDERROR;
-     const Value&    _log = ippsDoc["log"];
+     const Value&    _log = m_ippsDoc["log"];
      string          _location(_log["dir_location"].GetString());
-     int             _nThds = ippsDoc["threads"].GetInt();
+     int             _nThds = m_ippsDoc["threads"].GetInt();
 
     //registers all threads. each thread has its own class context
     for(int _i = 0; _i < _nThds; _i++)
     {
         //setup rotating logging
-        std::shared_ptr<mlogging> _pThdLogDoc( new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", ipps::eLogLvl) );
+        std::shared_ptr<mlogging> _pThdLogDoc( new mlogging(_location+"/"+"ppthd_"+std::to_string(_i), "log", m_eLogLvl) );
         if(!_pThdLogDoc)
         {
             IPPSLOG->error("error malloc logging object for pktproc threads");
@@ -197,7 +192,7 @@ MSTS ipps::configureThds()
             IPPSLOG->error("error malloc threads");
             break;
         }
-        vpThreads.push_back(_ppThd);
+        m_vpThreads.push_back(_ppThd);
     }
 
     _sts = MDSUCCESS;
@@ -215,12 +210,12 @@ MSTS ipps::runThds()
     /* background thread scheduler */
     //1.Launch all threads
     boost::ptr_vector<mthread>::iterator ppthd;
-    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
+    for (ppthd = m_vpThreads.begin() ; ppthd != m_vpThreads.end(); ++ppthd)
         ppthd->start();
     boost::this_thread::sleep(boost::posix_time::seconds(1));
 
     //2.snchronization, wait until all threads are ready to go.
-    for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
+    for (ppthd = m_vpThreads.begin() ; ppthd != m_vpThreads.end(); ++ppthd)
     {
         //check if the thread is ready to go
         //shared variables are mutex protected always...
@@ -238,7 +233,7 @@ MSTS ipps::runThds()
     //synchronization, wait until all threads are ready to go.
     if(_bWaitThds)
     {
-        for (ppthd = vpThreads.begin() ; ppthd != vpThreads.end(); ++ppthd)
+        for (ppthd = m_vpThreads.begin() ; ppthd != m_vpThreads.end(); ++ppthd)
         {
             while(1)
             {

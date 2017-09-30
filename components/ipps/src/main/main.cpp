@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
                  LOG_IPPS_FNUM);
 
     //RULES:
-    //no "GO TO:", no C++ exception and 1
+    //no "GO TO:", trying to avoid C++ exception and 1
     //entry and 1 exit point code.
     //use C style exception for code maintainability
     //and to avoid future nightmare debugging nested

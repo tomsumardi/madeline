@@ -6,16 +6,26 @@
 #include "mutil/src/madeline.h"
 #include "mutil/src/mutil.h"
 
+typedef struct
+{
+    u_int caplen;
+    u_int eth_type;
+} rxtxal_pkthdr;
+
 // abstract adapter class
 class rxtxInterface {
   public:
+    // Specific operation, function pointer
+    virtual rxtxal_pkthdr* getPktHeader() = 0;
     // Default operations
-    virtual void execute() = 0;
-    virtual MSTS open() = 0;
-    virtual MSTS write() = 0;
-    virtual MSTS read() = 0;
-    virtual MSTS close() = 0;
-    virtual MSTS init() = 0;
+    virtual MSTS    open(u_int bufSize) = 0;
+    virtual int     write(u_int size) = 0;
+    virtual int     read(u_int bufSize) = 0;
+    virtual MSTS    flush() = 0;
+    virtual MSTS    close() = 0;
+    virtual u_char  isWaitForPacket() = 0;
+    virtual u_char* getBufferPtr() = 0;
+    virtual void    printPacket(int32_t tzone) = 0;
     // destructor
     virtual ~rxtxInterface(){}
 };
@@ -24,37 +34,49 @@ class rxtxInterface {
 template <class TYPE>
 class rxtxAdapter: public rxtxInterface {
   public:
-    rxtxAdapter(TYPE *o, void(TYPE:: *m)()) {
-      object = o;
-      method = m;
+    rxtxAdapter(TYPE *object, rxtxal_pkthdr*(TYPE:: *method)()) {
+      m_object = object;
+      m_method = method;
     }
     ~rxtxAdapter() {
-      delete object;
+      delete m_object;
     }
     // Default operations
-    void execute() {
-      if (method){
-          (object->*method)();
+    rxtxal_pkthdr* getPktHeader() {
+      rxtxal_pkthdr* _pHdr = NULL;
+      if (m_method){
+          _pHdr = ((m_object->*m_method)());
       }
+      return _pHdr;
     }
-    MSTS init() {
-      return object->init();
+    MSTS open(u_int bufSize) {
+      return m_object->open(bufSize);
     }
-    MSTS open() {
-      return object->open();
+    int write(u_int size) {
+      return m_object->write(size);
     }
-    MSTS write() {
-      return object->write();
+    int read(u_int bufSize) {
+      return m_object->read(bufSize);
     }
-    MSTS read() {
-      return object->read();
+    MSTS flush() {
+      return m_object->flush();
     }
     MSTS close() {
-      return object->close();
+      return m_object->close();
     }
+    u_char isWaitForPacket() {
+      return m_object->isWaitForPacket();
+    }
+    u_char* getBufferPtr() {
+      return m_object->getBufferPtr();
+    }
+    void printPacket(int32_t tzone){
+      m_object->printPacket(tzone);
+    }
+
   private:
-    TYPE *object;
-    void(TYPE:: *method)();
+    TYPE *m_object;
+    rxtxal_pkthdr*(TYPE:: *m_method)();
 };
 
 #include "dpi_pfring.h"
