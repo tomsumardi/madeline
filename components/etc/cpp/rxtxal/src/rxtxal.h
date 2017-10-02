@@ -19,13 +19,16 @@ class rxtxInterface {
     virtual rxtxal_pkthdr* getPktHeader() = 0;
     // Default operations
     virtual MSTS    open(u_int bufSize) = 0;
-    virtual int     write(u_int size) = 0;
-    virtual int     read(u_int bufSize) = 0;
-    virtual MSTS    flush() = 0;
-    virtual MSTS    close() = 0;
+    virtual int     write_rx(void* pBuffer, u_int size) = 0;
+    virtual int     write_tx(void* pBuffer, u_int size) = 0;
+    virtual int     read_rx(void* pBuffer, u_int bufSize) = 0;
+    virtual int     read_tx(void* pBuffer, u_int bufSize) = 0;
+    virtual MSTS    flush_rx() = 0;
+    virtual MSTS    flush_tx() = 0;
+    virtual MSTS    close_rx() = 0;
+    virtual MSTS    close_tx() = 0;
     virtual u_char  isWaitForPacket() = 0;
-    virtual u_char* getBufferPtr() = 0;
-    virtual void    printPacket(int32_t tzone) = 0;
+    virtual void    printPacket(int32_t tzone, void* pBuffer) = 0;
     // destructor
     virtual ~rxtxInterface(){}
 };
@@ -52,26 +55,35 @@ class rxtxAdapter: public rxtxInterface {
     MSTS open(u_int bufSize) {
       return m_object->open(bufSize);
     }
-    int write(u_int size) {
-      return m_object->write(size);
+    int write_rx(void* pBuffer, u_int size) {
+      return m_object->write_rx(pBuffer, size);
     }
-    int read(u_int bufSize) {
-      return m_object->read(bufSize);
+    int write_tx(void* pBuffer, u_int size) {
+      return m_object->write_tx(pBuffer, size);
     }
-    MSTS flush() {
-      return m_object->flush();
+    int read_rx(void* pBuffer, u_int bufSize) {
+      return m_object->read_rx(pBuffer, bufSize);
     }
-    MSTS close() {
-      return m_object->close();
+    int read_tx(void* pBuffer, u_int bufSize) {
+      return m_object->read_tx(pBuffer, bufSize);
+    }
+    MSTS flush_rx() {
+      return m_object->flush_rx();
+    }
+    MSTS flush_tx() {
+      return m_object->flush_tx();
+    }
+    MSTS close_rx() {
+      return m_object->close_rx();
+    }
+    MSTS close_tx() {
+      return m_object->close_tx();
     }
     u_char isWaitForPacket() {
       return m_object->isWaitForPacket();
     }
-    u_char* getBufferPtr() {
-      return m_object->getBufferPtr();
-    }
-    void printPacket(int32_t tzone){
-      m_object->printPacket(tzone);
+    void printPacket(int32_t tzone, void* pBuffer){
+      m_object->printPacket(tzone, pBuffer);
     }
 
   private:

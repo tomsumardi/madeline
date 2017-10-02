@@ -11,47 +11,58 @@ void mthread :: procPkts()
     MSTS                 _sts;
     rxtxal_pkthdr*       _pktHdr;
     int32_t              _tzone = gmt_to_local(0);
+    u_char*              _pBuffer = NULL;
+    u_int                _bufSize = IPPS_NO_ZC_BUFFER_LEN;
 
-    _sts = m_pRxTx->open(IPPS_NO_ZC_BUFFER_LEN);
+    _sts = m_pRxTx->open(_bufSize);
     if(MDSUCCESS != _sts)
     {
         THDLOG->error("failure pfring initialization");
     }
     else
     {
-        while(1)
+        // use C calloc instead of new
+        _pBuffer = (u_char*)calloc(sizeof(u_char),_bufSize);
+        if(!_pBuffer)
+            THDLOG->error("insufficient memory: {}",_bufSize);
+        else
         {
-            if(m_pRxTx->read(IPPS_NO_ZC_BUFFER_LEN) > 0)
+            // C memset
+            memset(_pBuffer,0,sizeof(u_char)*_bufSize);
+            while(1)
             {
-                _pktHdr = m_pRxTx->getPktHeader();
-                if(_pktHdr)
+                if(m_pRxTx->read_rx(_pBuffer,_bufSize) > 0)
                 {
-                    switch(_pktHdr->eth_type)
+                    _pktHdr = m_pRxTx->getPktHeader();
+                    if(_pktHdr)
                     {
-                        case MD_IPV4:
-                            m_pRxTx->printPacket(_tzone);
-                            _pktSent = m_pRxTx->write(_pktHdr->caplen);
-                            if(_pktSent < 0)
-                                THDLOG->info("pfring_send err, {}",_pktSent);
-                            _sts = m_pRxTx->flush();
-                            if(MDSUCCESS != _sts)
-                                THDLOG->info("pfring_flush_tx_packets err, {}",_sts);
-                            break;
+                        switch(_pktHdr->eth_type)
+                        {
+                            case MD_IPV4:
+                                m_pRxTx->printPacket(_tzone, _pBuffer);
+                                _pktSent = m_pRxTx->write_tx(_pBuffer,_pktHdr->caplen);
+                                if(_pktSent < 0)
+                                    THDLOG->info("pfring_send err, {}",_pktSent);
+                                _sts = m_pRxTx->flush_tx();
+                                if(MDSUCCESS != _sts)
+                                    THDLOG->info("pfring_flush_tx_packets err, {}",_sts);
+                                break;
 
-                        case MD_IPV6:
-                            //will this work??
-                            m_pRxTx->printPacket(_tzone);
-                            break;
+                            case MD_IPV6:
+                                //will this work??
+                                m_pRxTx->printPacket(_tzone, _pBuffer);
+                                break;
 
-                        default:
-                            break;
+                            default:
+                                break;
+                        }
                     }
                 }
-            }
-            else
-            {
-                if(m_pRxTx->isWaitForPacket() == 0)
-                    sched_yield();
+                else
+                {
+                    if(m_pRxTx->isWaitForPacket() == 0)
+                        sched_yield();
+                }
             }
         }
     }

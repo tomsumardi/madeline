@@ -17,31 +17,43 @@ class dpdkDPI {
     cout << "dpdkDPI" << "::open()" << endl;
     return 0;
   }
-  int write(u_int size) {
-    cout << "dpdkDPI" << "::write()" << endl;
+  int write_rx(void* pbuffer, u_int size) {
+    cout << "dpdkDPI" << "::write_rx()" << endl;
     return 0;
   }
-  int read(u_int bufSize) {
-    cout << "dpdkDPI" << "::read()" << endl;
+  int write_tx(void* pbuffer, u_int size) {
+    cout << "dpdkDPI" << "::write_tx()" << endl;
     return 0;
   }
-  MSTS flush() {
-    cout << "dpdkDPI" << "::flush()" << endl;
+  int read_rx(void* pbuffer, u_int bufSize) {
+    cout << "dpdkDPI" << "::read_rx()" << endl;
     return 0;
   }
-  MSTS close() {
-    cout << "dpdkDPI" << "::close()" << endl;
+  int read_tx(void* pbuffer, u_int bufSize) {
+    cout << "dpdkDPI" << "::read_tx()" << endl;
+    return 0;
+  }
+  MSTS flush_rx() {
+    cout << "dpdkDPI" << "::flush_rx()" << endl;
+    return 0;
+  }
+  MSTS flush_tx() {
+    cout << "dpdkDPI" << "::flush_tx()" << endl;
+    return 0;
+  }
+  MSTS close_rx() {
+    cout << "dpdkDPI" << "::close_rx()" << endl;
+    return 0;
+  }
+  MSTS close_tx() {
+    cout << "dpdkDPI" << "::close_tx()" << endl;
     return 0;
   }
   u_char isWaitForPacket(){
       cout << "dpdkDPI" << "::isWaitForPacket()" << endl;
       return (m_waitForPacket);
   }
-  u_char*  getBufferPtr() {
-      cout << "dpdkDPI" << "::getBufferPtr()" << endl;
-      return NULL;
-  }
-  void printPacket(int32_t tzone) {
+  void printPacket(int32_t tzone, void* pBuffer) {
       cout << "dpdkDPI" << "::printPacket()" << endl;
   }
   private:

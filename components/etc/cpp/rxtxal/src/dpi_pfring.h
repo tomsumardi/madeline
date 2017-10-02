@@ -16,7 +16,7 @@ class pfringDPI {
   public:
       pfringDPI() {}
       pfringDPI(bool bver, std::shared_ptr<spdlog::logger> pLog, Document *pDoc) :
-          m_bVerbose(bver),m_waitForPacket(1), m_pLog(pLog), m_pBuffer(NULL), m_pdIn(NULL), m_pdOut(NULL)
+          m_bVerbose(bver),m_waitForPacket(1), m_pLog(pLog), m_pdIn(NULL), m_pdOut(NULL)
       {
           //Do deep copy here.
           m_ippsDoc.CopyFrom(*pDoc, m_ippsDoc.GetAllocator());
@@ -26,27 +26,27 @@ class pfringDPI {
       }
       ~pfringDPI() {
         cout << "pfringDPI" << "::dtor" << endl;
-        if(m_pBuffer)
-            free(m_pBuffer);
       }
       //pfring specific function pointer
       rxtxal_pkthdr* getPktHeader();
       // Default operations
       MSTS      open(u_int bufSize);
-      int       write(u_int size);
-      int       read(u_int bufSize);
-      MSTS      flush();
-      MSTS      close();
+      int       write_rx(void* pbuffer, u_int size);
+      int       write_tx(void* pbuffer, u_int size);
+      int       read_rx(void* pbuffer, u_int bufSize);
+      int       read_tx(void* pbuffer, u_int bufSize);
+      MSTS      flush_rx();
+      MSTS      flush_tx();
+      MSTS      close_rx();
+      MSTS      close_tx();
       u_char    isWaitForPacket();
-      u_char*   getBufferPtr();
-      void      printPacket(int32_t tzone);
+      void      printPacket(int32_t tzone, void* pBuffer);
       // internal functions
       char* etheraddrString(const u_char *ep, char *buf);
   private:
       bool                                m_bVerbose;
       unsigned char                       m_waitForPacket;
       std::shared_ptr<spdlog::logger>     m_pLog;
-      u_char*                             m_pBuffer;
       rxtxal_pkthdr                       m_pktHdr;
       Document                            m_ippsDoc;
       // Pfring specific

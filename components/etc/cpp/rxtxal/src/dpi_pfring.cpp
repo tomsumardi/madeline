@@ -38,15 +38,6 @@ MSTS pfringDPI::open(u_int bufSize)
       // default flow to 5 tuple for rx for now
       cluster_type cluster_hash_type = cluster_per_flow_5_tuple;
 
-      m_pBuffer = (u_char*)calloc(sizeof(u_char),bufSize);
-      if(m_pBuffer)
-          memset(m_pBuffer,0,sizeof(u_char)*bufSize);
-      else
-      {
-          m_pLog->error("insufficient memory: {}",bufSize);
-          break;
-      }
-
       if(m_ippsDoc.HasMember("interfaces_in"))
       {
           MSTS    _intfSts;
@@ -338,72 +329,108 @@ MSTS pfringDPI::open(u_int bufSize)
 
 rxtxal_pkthdr* pfringDPI::getPktHeader()
 {
-  m_pktHdr.caplen   = m_pfringPktHdr.caplen;
-  m_pktHdr.eth_type = m_pfringPktHdr.extended_hdr.parsed_pkt.eth_type;
-  return (&m_pktHdr);
+    m_pLog->info("pfringDPI::getPktHeader()");
+    m_pktHdr.caplen   = m_pfringPktHdr.caplen;
+    m_pktHdr.eth_type = m_pfringPktHdr.extended_hdr.parsed_pkt.eth_type;
+    return (&m_pktHdr);
 }
 
-int pfringDPI::write(u_int size)
+int pfringDPI::write_rx(void* pbuffer, u_int size)
 {
   int       _pktSent;
-  u_char*   _pbuffer = m_pBuffer;
 
-  m_pLog->info("pfringDPI::write()");
+  m_pLog->info("pfringDPI::write_rx()");
   m_pLog->info("pfring caplen {}",size);
-  //_pktSent =  pfring_send_last_rx_packet(_pdIn, ifIdx);
-  _pktSent = pfring_send(m_pdOut, (char*)_pbuffer, size,1);
+  _pktSent = pfring_send(m_pdIn, (char*)pbuffer, size,1);
   m_pLog->info("pfring send {}",_pktSent);
   return _pktSent;
 }
 
-int pfringDPI::read(u_int bufSize)
+int pfringDPI::write_tx(void* pbuffer, u_int size)
+{
+  int       _pktSent;
+
+  m_pLog->info("pfringDPI::write_tx()");
+  m_pLog->info("pfring caplen {}",size);
+  _pktSent = pfring_send(m_pdOut, (char*)pbuffer, size,1);
+  m_pLog->info("pfring send {}",_pktSent);
+  return _pktSent;
+}
+
+int pfringDPI::read_rx(void* pbuffer, u_int bufSize)
 {
   int       _pktRead;
-  u_char*   _pbuffer = m_pBuffer;
 
-  m_pLog->info("pfringDPI::read()");
-  _pktRead = pfring_recv(m_pdIn, &_pbuffer,
+  m_pLog->info("pfringDPI::read_rx()");
+  _pktRead = pfring_recv(m_pdIn, (u_char**)&pbuffer,
           bufSize,
           &m_pfringPktHdr, m_waitForPacket);
   return _pktRead;
 }
 
-MSTS pfringDPI::flush()
+int pfringDPI::read_tx(void* pbuffer, u_int bufSize)
+{
+  int       _pktRead;
+
+  m_pLog->info("pfringDPI::read_tx()");
+  _pktRead = pfring_recv(m_pdOut, (u_char**)&pbuffer,
+          bufSize,
+          &m_pfringPktHdr, m_waitForPacket);
+  return _pktRead;
+}
+
+MSTS pfringDPI::flush_rx()
 {
   MSTS  _sts;
 
-  m_pLog->info("pfringDPI::flush()");
+  m_pLog->info("pfringDPI::flush_rx()");
+  _sts = pfring_flush_tx_packets(m_pdIn);
+  return _sts;
+}
+
+MSTS pfringDPI::flush_tx()
+{
+  MSTS  _sts;
+
+  m_pLog->info("pfringDPI::flush_tx()");
   _sts = pfring_flush_tx_packets(m_pdOut);
   return _sts;
 }
 
-u_char pfringDPI::isWaitForPacket(){
-    return (m_waitForPacket);
-}
-
-u_char* pfringDPI::getBufferPtr() {
-  return (m_pBuffer);
-}
-
-MSTS pfringDPI::close()
+MSTS pfringDPI::close_rx()
 {
-  m_pLog->info("pfringDPI::close()");
+  m_pLog->info("pfringDPI::close_rx()");
   pfring_close(m_pdIn);
   return MDSUCCESS;
 }
 
+MSTS pfringDPI::close_tx()
+{
+  m_pLog->info("pfringDPI::close_tx()");
+  pfring_close(m_pdOut);
+  return MDSUCCESS;
+}
+
+u_char pfringDPI::isWaitForPacket(){
+    m_pLog->info("pfringDPI::isWaitForPacket()");
+    return (m_waitForPacket);
+}
+
 //TODO: temporary helper, delete this code
-void pfringDPI::printPacket(int32_t tzone)
+void pfringDPI::printPacket(int32_t tzone, void* pBuffer)
 {
   int _s;
   u_int _usec, _nsec = 0;
   bool _extendedPktHdr = true;
   char _dumpStr[512] = { 0 };
+  u_char* _pBuffer = (u_char*)pBuffer;
+
+  m_pLog->info("pfringDPI::printPacket()");
 
  if(/*(!is_sysdig) &&*/ (m_pfringPktHdr.ts.tv_sec == 0 || m_pfringPktHdr.extended_hdr.parsed_pkt.offset.l3_offset == 0))
  {
     memset((void*)&m_pfringPktHdr.extended_hdr.parsed_pkt, 0, sizeof(struct pkt_parsing_info));
-    pfring_parse_pkt((u_char*)m_pBuffer, (struct pfring_pkthdr*)&m_pfringPktHdr, 5, 0, 1);
+    pfring_parse_pkt((u_char*)_pBuffer, (struct pfring_pkthdr*)&m_pfringPktHdr, 5, 0, 1);
   }
 
  _s = (m_pfringPktHdr.ts.tv_sec + tzone) % 86400;
@@ -432,7 +459,7 @@ void pfringDPI::printPacket(int32_t tzone)
       m_pfringPktHdr.extended_hdr.rx_direction ? "[RX]" : "[TX]",
       m_pfringPktHdr.extended_hdr.if_index);
 
-    pfring_print_parsed_pkt(_bigbuf, sizeof(_bigbuf), m_pBuffer, &m_pfringPktHdr);
+    pfring_print_parsed_pkt(_bigbuf, sizeof(_bigbuf), _pBuffer, &m_pfringPktHdr);
     _len = strlen(_bigbuf);
 
     if(_len > 0) _bigbuf[_len-1] = '\0';
@@ -442,7 +469,7 @@ void pfringDPI::printPacket(int32_t tzone)
   else
   {
     char _buf1[32], _buf2[32];
-    struct ether_header *ehdr = (struct ether_header *) m_pBuffer;
+    struct ether_header *ehdr = (struct ether_header *) pBuffer;
 
     snprintf(&_dumpStr[strlen(_dumpStr)], sizeof(_dumpStr)-strlen(_dumpStr),
              "[%s -> %s][eth_type=0x%04X][caplen=%d][len=%d]",
