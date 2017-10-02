@@ -1,4 +1,3 @@
-## -------------------------------------------------------------
 ## Project Intro and Vision:
 Madeline is high performance packet router/recorder. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of object storage backend such as ceph.
 
@@ -145,8 +144,7 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 - function should have one entry and one exit point
 
 #### TODO: 
-1. RXTXAL library
-- abstracting Pfring implementation into RXTXAL abstract adapter/bridge interface class
-2. IPPS
+1. IPPS
+- kernel/user level filtering and blacklisting
 - more logs, config assertions
 
