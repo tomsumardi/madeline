@@ -44,7 +44,7 @@ Note:
 ## -------------------------------------------------------------
 ## Pre-requisite through package manager
 * gnome C library 2.46.2 (glib2)
-* C++ boost library 1.53.0 (boost-devel)
+* C++ boost library 1.66.0 (manually build)
 * pfring x86_64          6.4.1-1122                     
 * pfring-dkms            6.4.1-1122 
 * pfring-drivers-zc-dkms 1.2-0
@@ -147,4 +147,5 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 1. IPPS
 - kernel/user level filtering and blacklisting
 - more logs, config assertions
+- Adding throw, catch and stacktrace from boost 1.66.0
 
