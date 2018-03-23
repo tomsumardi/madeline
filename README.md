@@ -2,7 +2,7 @@
 Madeline is high performance packet router/recorder. The vision is to have a baseline framework where the ecosystem can be used for more than caching video but also capturing and monitoring single L2/L3 packet flow or session monitoring/stiching, that can be analyzed in the future through some kind of object storage backend such as ceph.
 
 ### Summary:
-Madeline is out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack or physical NIC. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
+Madeline is micro-service container friendly out-of/in-band inline (realtime) packet router/recorder. The packets are decoded and dissected from layer 2 to 4 while the payload is untouched and pushed from one service to another in pipelined manner. It also performs intelligent forwarding/routing/load-balancing and filtering of packets per flow pulled from linux socket kernel buffer (SKB) bypassing linux network stack or physical NIC. The architecture allows each of the packet processing components (IPPS, PPP and PHS) to act as standalone processes with the user free to chain them together as needed with "active" and "passive" mode of operations.
 - In active mode, it can be used to perform OTT Video (MPEG-DASH/apple HLS/etc) caching based on regular expression or ip address/port tuple logic rulesets by injecting data into the packet payload. 
 - In passive mode, it can be used to perform traffic recording using object store storage backend.
 
@@ -44,7 +44,7 @@ Note:
 ## -------------------------------------------------------------
 ## Pre-requisite through package manager
 * gnome C library 2.46.2 (glib2)
-* C++ boost library 1.53.0 (boost-devel)
+* C++ boost library 1.66.0 (manually build)
 * pfring x86_64          6.4.1-1122                     
 * pfring-dkms            6.4.1-1122 
 * pfring-drivers-zc-dkms 1.2-0
@@ -147,4 +147,5 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 1. IPPS
 - kernel/user level filtering and blacklisting
 - more logs, config assertions
+- Adding throw, catch and stacktrace from boost 1.66.0
 
