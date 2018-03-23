@@ -14,7 +14,7 @@ MSTS mlogging::addRotate(int ifsize, int ifrotnum)
     }
     catch (const spdlog::spdlog_ex& ex)
     {
-        std::cout << "Log initialization failed: " << ex.what() << std::endl;
+        //std::cout << "Log initialization failed: " << ex.what() << std::endl;
         _sts = MDERROR;
     }
 

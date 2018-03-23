@@ -7,6 +7,7 @@
 //#include "mpfring.h"
 #include "mthread.h"
 #include <iostream>
+#include <execinfo.h>
 #include <glib.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -16,7 +17,10 @@
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 #define IPPS_SYNCH_TIMEOUT_MS       500
 #define IPPS_THDJOIN_TIMEOUT_SEC    5
-#define IPPSLOG     m_pMIppsLog
+#define IPPSLOG                     m_pMIppsLog
+#define DUMP_STACKTRACE(e)          std::vector<string> stkTrace = stackTrace(e); \
+        for (std::vector<string>::iterator it = stkTrace.begin(); it != stkTrace.end(); ++it) \
+        {IPPSLOG->error(*it);}
 
 class ipps : public madeline{
   public:
@@ -63,16 +67,16 @@ class ipps : public madeline{
     MSTS configureComChannels();
     MSTS configurePfring();
     MSTS configureFilters();
-    MSTS configureThds();
-    MSTS runThds();
+    MSTS threadExec();
+
   private:
     //logging
     std::shared_ptr<spdlog::logger>     m_pMIppsLog;
     Document                            m_ippsDoc;
     Document                            m_ippsSchema;
     spdlog::level::level_enum           m_eLogLvl;
-    //thread mgmt
-    boost::ptr_vector<mthread>          m_vpThreads;
+    std::shared_ptr<mlogging>           _pThdLogDoc;
+    mthread                             m_vpThread;
 };
 
 void ipps_print(const char *str);

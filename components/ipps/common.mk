@@ -34,7 +34,7 @@ CFLAGS_OPTS    += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declaratio
 #	LDFLAGS_OPTS   += -Wl,--gc-sections
 #else
 	CFLAGS_OPTS    += -g -Wall -Wformat-security -fstack-protector-all `pkg-config --cflags glib-2.0`
-	CFLAGS_DEFS    += -DMDLN_DEBUG
+	CFLAGS_DEFS    += -DMDLN_DEBUG -DBOOST_STACKTRACE_USE_BACKTRACE
 #endif
 #Passing Version to MDLN
 #CFLAGS_OPTS        += -DMDLN_VER='"$(MDLNDIR_VER)"' -DMDLN_REL='"$(MDLNDIR_REL)"'
@@ -54,7 +54,7 @@ LDFLAGS_INC    += $(xml_LIBS) $(glib2_LIBS)
 #-------------------------------------------------------------------------
 # C++
 #-------------------------------------------------------------------------
-LDFLAGS_INC     += -lstdc++ -lm -lboost_regex -lboost_system -lboost_filesystem-mt -lboost_thread -lpfring -lpcap
+LDFLAGS_INC     += -lstdc++ -lm -ldl -lboost_system -lboost_filesystem -lboost_thread -lpfring -lpcap -lboost_regex 
 
 #-------------------------------------------------------------------------
 # define compiler and linker flags

@@ -11,14 +11,17 @@ using namespace std;
 
 class mthread{
     public:
-        mthread(bool bver,std::shared_ptr<mlogging> pThdLogDoc) :
-            m_bVerbose(bver),
-            m_pLogDoc(pThdLogDoc),
+        mthread() :
+            m_bVerbose(false),
             m_bInitRdy(false),
             m_bInitError(false),
             m_pRxTx(NULL)
         {
-            m_pThdLog = m_pLogDoc->getRotateLog();
+        }
+        void init(bool bverbose, std::shared_ptr<mlogging> pThdLogDoc)
+        {
+            m_bVerbose = bverbose;
+            m_pThdLog = pThdLogDoc->getRotateLog();
         }
         std::shared_ptr<spdlog::logger> getThdLogHandler(){return(m_pThdLog);}
         void start(){m_tmThread = boost::thread(&mthread::pProcessing, this);}
