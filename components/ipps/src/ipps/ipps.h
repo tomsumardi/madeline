@@ -14,6 +14,13 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
+#define M_IPPS_ERRNO_0      100
+#define M_IPPS_ERRNO_1      101
+#define M_IPPS_ERRNO_2      102
+#define M_IPPS_ERRNO_3      103
+#define M_IPPS_ERRNO_4      104
+#define M_IPPS_ERRNO_5      105
+
 #define ARG_NONE { NULL,0,0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
 #define IPPS_SYNCH_TIMEOUT_MS       500
 #define IPPS_THDJOIN_TIMEOUT_SEC    5
