@@ -145,6 +145,7 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 
 #### How to compile C++ boost 1.66.0
 (remove distro specific boost)
+```
 wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
 Unzip
 tar -xzf boost_1_66_0.tar.gz && cd boost_1_66_0
@@ -153,6 +154,7 @@ Bootstrap and Install
 ./b2 install --prefix=/usr --with=all
 sudo ldconfig
 sudo ldd src/main/ipps
+```
 
 #### TODO: 
 1. IPPS
