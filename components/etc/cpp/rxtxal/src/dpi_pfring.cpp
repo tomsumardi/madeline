@@ -22,6 +22,25 @@
 #define RXTXAL_MPFRING_OUT_DIRECTION          "tx"
 
 // Default operations
+Value&  pfringDPI::getConfigValue(char* field)
+{
+    try
+    {
+        if(!m_ippsDoc.HasMember(field))
+        {
+            MPFRINGLOG->error("{} field is not available",field);
+            throw_with_trace(runtime_error(""));
+        }
+    }catch (const std::exception& e)
+    {
+        MPFRING_STACKTRACE(e)
+        //Need to return error instead of exiting
+        exit(M_IPPS_ERRNO_THREAD);
+    }
+
+    return m_ippsDoc[field];
+}
+
 MSTS pfringDPI::open(u_int bufSize)
 {
   MPFRINGLOG->info("pfringDPI::open()");
@@ -90,7 +109,7 @@ MSTS pfringDPI::open(u_int bufSize)
           auto& _lstFilters = _intfField["pcap_filters"];
           for (SizeType _i = 0; _i < _lstFilters.Size(); _i++)
           {
-              _strPcapFilter += _lstFilters[_i].GetString();
+              _strPcapFilter = _lstFilters[_i].GetString();
               if (_i < _lstFilters.Size()-1)
                   _strPcapFilter += " || ";
           }

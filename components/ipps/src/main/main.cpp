@@ -19,20 +19,20 @@ int main(int argc, char *argv[])
         //+ parse main arguments
         _sts = _ipps.processCmdArgs(argc,argv);
         if (_sts != MDSUCCESS)
-            throw M_IPPS_ERRNO_0;
+            throw M_IPPS_ERRNO_PARSE_CMD_ARG;
         //+ configure debug logging (logging)
         _sts = _ipps.configureSysLog();
         if (_sts != MDSUCCESS)
-            throw M_IPPS_ERRNO_1;
+            throw M_IPPS_ERRNO_CONF_SYSLOG;
         //+ configure pfring
         _sts = _ipps.configurePfring();
         if (_sts != MDSUCCESS)
-            throw M_IPPS_ERRNO_2;
+            throw M_IPPS_ERRNO_CONF_PFRING;
         //+ register with MS if not standalone (main)
         //+ polls for new configuration from MS using AMQP channel (ipps)
         _sts = _ipps.configureComChannels();
         if (_sts != MDSUCCESS)
-            throw M_IPPS_ERRNO_3;
+            throw M_IPPS_ERRNO_CONF_COM_CHANNELS;
         //+ Configures L2/L3 Filters (pfilter)
         //_sts = _ipps.configureFilters();
         //if (_sts != MDSUCCESS)
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         //+ Launch all threads
         _sts = _ipps.threadExec();
         if (_sts != MDSUCCESS)
-            throw M_IPPS_ERRNO_5;
+            throw M_IPPS_ERRNO_THREAD_EXEC;
         _sts = MDSUCCESS;
     }catch (int e){
         _sts = e;

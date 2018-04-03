@@ -46,7 +46,8 @@ class pfringDPI : public madeline
       u_char    isWaitForPacket();
       void      printPacket(int32_t tzone, void* pBuffer);
       // internal functions
-      char* etheraddrString(const u_char *ep, char *buf);
+      char*     etheraddrString(const u_char *ep, char *buf);
+      Value&    getConfigValue(char* field);
   private:
       bool                                m_bVerbose;
       unsigned char                       m_waitForPacket;

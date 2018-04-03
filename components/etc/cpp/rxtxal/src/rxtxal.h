@@ -13,7 +13,7 @@ typedef struct
 } rxtxal_pkthdr;
 
 // abstract adapter class
-class rxtxInterface : public madeline
+class rxtxInterface
 {
   public:
     // Specific operation, function pointer
@@ -30,6 +30,7 @@ class rxtxInterface : public madeline
     virtual MSTS    close_tx() = 0;
     virtual u_char  isWaitForPacket() = 0;
     virtual void    printPacket(int32_t tzone, void* pBuffer) = 0;
+    virtual Value&  getConfigValue(char* field) = 0;
     // destructor
     virtual ~rxtxInterface(){}
 };
@@ -85,6 +86,9 @@ class rxtxAdapter: public rxtxInterface {
     }
     void printPacket(int32_t tzone, void* pBuffer){
       m_object->printPacket(tzone, pBuffer);
+    }
+    Value& getConfigValue(char* field){
+      return m_object->getConfigValue(field);
     }
 
   private:

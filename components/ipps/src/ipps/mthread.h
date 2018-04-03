@@ -7,9 +7,10 @@
 
 using namespace std;
 
-#define THDLOG  m_pThdLog
+#define THDLOG                      m_pThdLog
+#define IPPS_THDSTACKTRACE(e)       DUMP_STACKTRACE_LOG(e, THDLOG)
 
-class mthread{
+class mthread : public madeline {
     public:
         mthread() :
             m_bVerbose(false),

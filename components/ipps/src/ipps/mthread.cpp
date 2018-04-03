@@ -13,18 +13,42 @@ void mthread :: procPkts()
     int32_t              _tzone = gmt_to_local(0);
     u_char*              _pBuffer = NULL;
     u_int                _bufSize = IPPS_NO_ZC_BUFFER_LEN;
+    char                 _fieldName[] = "interfaces_in";
+    vector<string>       _strl3blacklist;
 
-    _sts = m_pRxTx->open(_bufSize);
-    if(MDSUCCESS != _sts)
+    try
     {
-        THDLOG->error("failure pfring initialization");
-    }
-    else
-    {
+        _sts = m_pRxTx->open(_bufSize);
+        if(MDSUCCESS != _sts)
+            throw_with_trace(runtime_error("failure pfring initialization"));
+        else
+        {
+            // Get list of L3 blacklisted sites
+            const Value&  _intfField = m_pRxTx->getConfigValue(_fieldName);
+            if(_intfField.HasMember("l3_blacklists"))
+            {
+                string  _strIp = "";
+                auto& _lstIps = _intfField["l3_blacklists"];
+                for (SizeType _i = 0; _i < _lstIps.Size(); _i++)
+                {
+                    _strIp = _lstIps[_i].GetString();
+                    _strl3blacklist.push_back(_strIp);
+                }
+                for(vector<string>::const_iterator i = _strl3blacklist.begin(); i != _strl3blacklist.end(); ++i) {
+                    THDLOG->info(*i);
+                }
+            }
+            else
+                throw_with_trace(runtime_error("failure l3 blacklist sites"));
+        }
+
         // use C calloc instead of new
         _pBuffer = (u_char*)calloc(sizeof(u_char),_bufSize);
         if(!_pBuffer)
+        {
             THDLOG->error("insufficient memory: {}",_bufSize);
+            throw_with_trace(runtime_error(""));
+        }
         else
         {
             // C memset
@@ -65,6 +89,9 @@ void mthread :: procPkts()
                 }
             }
         }
+    } catch (const std::exception& e) {
+        IPPS_THDSTACKTRACE(e)
+        exit(M_IPPS_ERRNO_THREAD);
     }
 }
 

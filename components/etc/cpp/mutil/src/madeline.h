@@ -8,6 +8,13 @@
 #include <boost/exception/all.hpp>
 #include "spdlog/spdlog.h"
 
+#define M_IPPS_ERRNO_PARSE_CMD_ARG          100
+#define M_IPPS_ERRNO_CONF_SYSLOG            101
+#define M_IPPS_ERRNO_CONF_PFRING            102
+#define M_IPPS_ERRNO_CONF_COM_CHANNELS      103
+#define M_IPPS_ERRNO_THREAD_EXEC            104
+#define M_IPPS_ERRNO_THREAD                 105
+
 using namespace std;
 typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace> traced;
 template <class E>
