@@ -44,7 +44,7 @@ Note:
 ## -------------------------------------------------------------
 ## Pre-requisite through package manager
 * gnome C library 2.46.2 (glib2)
-* C++ boost library 1.66.0 (manually build)
+* C++ boost library 1.66.0 (manually build) - needed for exception stack trace
 * pfring x86_64          6.4.1-1122                     
 * pfring-dkms            6.4.1-1122 
 * pfring-drivers-zc-dkms 1.2-0
@@ -142,6 +142,17 @@ https://github.com/tomsumardi/laguna/blob/master/1.0/scripts/rpm/transparent_cac
 - https://google.github.io/styleguide/cppguide.html
 - shallow inheritance (3 level max)
 - function should have one entry and one exit point
+
+#### How to compile C++ boost 1.66.0
+(remove distro specific boost)
+wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz
+Unzip
+tar -xzf boost_1_66_0.tar.gz && cd boost_1_66_0
+Bootstrap and Install
+./bootstrap.sh --prefix=/usr
+./b2 install --prefix=/usr --with=all
+sudo ldconfig
+sudo ldd src/main/ipps
 
 #### TODO: 
 1. IPPS
