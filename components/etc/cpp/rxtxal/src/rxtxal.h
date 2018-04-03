@@ -13,7 +13,8 @@ typedef struct
 } rxtxal_pkthdr;
 
 // abstract adapter class
-class rxtxInterface {
+class rxtxInterface : public madeline
+{
   public:
     // Specific operation, function pointer
     virtual rxtxal_pkthdr* getPktHeader() = 0;

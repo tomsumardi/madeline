@@ -24,17 +24,17 @@
 // Default operations
 MSTS pfringDPI::open(u_int bufSize)
 {
-  m_pLog->info("pfringDPI::open()");
+  MPFRINGLOG->info("pfringDPI::open()");
 
   MSTS    _sts                = MDERROR;
   int     _nThreads           = 0;
   u_char  _mac_address[6]     = { 0 };
   char    _buf[32];
 
-  do
+  try
   {
       _nThreads = m_ippsDoc["threads"].GetInt();
-      m_pLog->debug("threads: {}",_nThreads);
+      MPFRINGLOG->debug("threads: {}",_nThreads);
       // default flow to 5 tuple for rx for now
       cluster_type cluster_hash_type = cluster_per_flow_5_tuple;
 
@@ -95,16 +95,16 @@ MSTS pfringDPI::open(u_int bufSize)
                   _strPcapFilter += " || ";
           }
 
-          m_pLog->debug("interfaces_in/snaplen: {}",_nSnapLength);
-          m_pLog->debug("interfaces_in/direction: {}",_strDirection);
-          m_pLog->debug("interfaces_in/core_bind_id: {}",_nBindId);
-          m_pLog->debug("interfaces_in/watermark: {}",_nWatermark);
-          m_pLog->debug("interfaces_in/poll_wait_msec: {}",_nPollWaitMsec);
-          m_pLog->debug("interfaces_in/ring_cluster_id: {}",_nRingClusterId);
-          m_pLog->debug("interfaces_in/hw_timestamp: {}",_bHwTimeStamp);
-          m_pLog->debug("interfaces_in/strip_timestamp: {}",_bStripTimeStamp);
-          m_pLog->debug("interfaces_in/name: {}",_strIntfName);
-          m_pLog->debug("interfaces_in/pcap_filters: {}",_strPcapFilter);
+          MPFRINGLOG->debug("interfaces_in/snaplen: {}",_nSnapLength);
+          MPFRINGLOG->debug("interfaces_in/direction: {}",_strDirection);
+          MPFRINGLOG->debug("interfaces_in/core_bind_id: {}",_nBindId);
+          MPFRINGLOG->debug("interfaces_in/watermark: {}",_nWatermark);
+          MPFRINGLOG->debug("interfaces_in/poll_wait_msec: {}",_nPollWaitMsec);
+          MPFRINGLOG->debug("interfaces_in/ring_cluster_id: {}",_nRingClusterId);
+          MPFRINGLOG->debug("interfaces_in/hw_timestamp: {}",_bHwTimeStamp);
+          MPFRINGLOG->debug("interfaces_in/strip_timestamp: {}",_bStripTimeStamp);
+          MPFRINGLOG->debug("interfaces_in/name: {}",_strIntfName);
+          MPFRINGLOG->debug("interfaces_in/pcap_filters: {}",_strPcapFilter);
 
           if(_nThreads > 1)     _flags |= PF_RING_REENTRANT;
           if(_bHwTimeStamp)     _flags |= PF_RING_HW_TIMESTAMP;
@@ -115,45 +115,45 @@ MSTS pfringDPI::open(u_int bufSize)
           m_pdIn = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
           if(!m_pdIn)
           {
-              m_pLog->error("failure to perform pfring_open on intf {}",_strIntfName);
-              break;
+              MPFRINGLOG->error("failure to perform pfring_open on intf {}",_strIntfName);
+              throw_with_trace(runtime_error(""));
           }
           u_int32_t _version;
 
           pfring_set_application_name(m_pdIn,(char*)"ipps");
           pfring_version(m_pdIn, &_version);
 
-          m_pLog->info("Using PF_RING v.{}.{}.{}",
+          MPFRINGLOG->info("Using PF_RING v.{}.{}.{}",
              (_version & 0xFFFF0000) >> 16,
              (_version & 0x0000FF00) >> 8,
              _version & 0x000000FF);
 
           if(pfring_get_bound_device_address(m_pdIn, _mac_address) != 0)
-              m_pLog->warn("Unable to read the device address");
+              MPFRINGLOG->warn("Unable to read the device address");
           else
           {
               int _ifindex = -1;
 
               pfring_get_bound_device_ifindex(m_pdIn, &_ifindex);
 
-              m_pLog->info("Capturing from {} [mac: {}][if_index: {}][speed: {}Mb/s]",
+              MPFRINGLOG->info("Capturing from {} [mac: {}][if_index: {}][speed: {}Mb/s]",
                       (char*)_strIntfName.c_str(), etheraddrString(_mac_address, _buf),
                  _ifindex,
                      pfring_get_interface_speed(m_pdIn));
           }
 
-          m_pLog->info("# Device RX channels: {}", pfring_get_num_rx_channels(m_pdIn));
-          m_pLog->info("# Polling threads:    {}", _nThreads);
+          MPFRINGLOG->info("# Device RX channels: {}", pfring_get_num_rx_channels(m_pdIn));
+          MPFRINGLOG->info("# Polling threads:    {}", _nThreads);
 
           /* setup bpf filtering, change this to pfring one in the future */
           _intfSts = pfring_set_bpf_filter(m_pdIn, (char*)(_strPcapFilter.c_str()));
           if(_intfSts != MDSUCCESS)
           {
-              m_pLog->error("pfring_set_bpf_filter({}) returned {}", _strPcapFilter.c_str(), _intfSts);
-              break;
+              MPFRINGLOG->error("pfring_set_bpf_filter({}) returned {}", _strPcapFilter.c_str(), _intfSts);
+              throw_with_trace(runtime_error(""));
           }
           else
-              m_pLog->info("Successfully set BPF filter '{}'", _strPcapFilter.c_str());
+              MPFRINGLOG->info("Successfully set BPF filter '{}'", _strPcapFilter.c_str());
 
           packet_direction direction;
           if(boost::iequals(_strDirection, "rx"))
@@ -164,15 +164,14 @@ MSTS pfringDPI::open(u_int bufSize)
               direction = rx_and_tx_direction;
           else
           {
-              m_pLog->error("pfring_set_direction, options are rx,tx and rx+tx");
-              break;
+              throw_with_trace(runtime_error("pfring_set_direction, options are rx,tx and rx+tx"));
           }
           pfring_set_direction(m_pdIn, direction);
           _intfSts = pfring_set_socket_mode(m_pdIn, recv_only_mode);
           if(MDSUCCESS != _intfSts)
           {
-              m_pLog->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
-              break;
+              MPFRINGLOG->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
+              throw_with_trace(runtime_error(""));
           }
 
           if(_nWatermark > 0)
@@ -180,21 +179,21 @@ MSTS pfringDPI::open(u_int bufSize)
             _intfSts = pfring_set_poll_watermark(m_pdIn, _nWatermark);
             if(MDSUCCESS != _intfSts)
             {
-                m_pLog->error("pfring_set_poll_watermark returned [rc={}][watermark={}]", _intfSts, _nWatermark);
-                break;
+                MPFRINGLOG->error("pfring_set_poll_watermark returned [rc={}][watermark={}]", _intfSts, _nWatermark);
+                throw_with_trace(runtime_error(""));
             }
           }
           else
           {
-              m_pLog->error("pfring_set_poll_watermark must be > 0");
-              break;
+              MPFRINGLOG->error("pfring_set_poll_watermark must be > 0");
+              throw_with_trace(runtime_error(""));
           }
           if(_nRingClusterId > 0)
           {
               _intfSts = pfring_set_cluster(m_pdIn, _nRingClusterId, cluster_hash_type);
               if(MDSUCCESS != _intfSts)
               {
-                  m_pLog->error("pfring_set_cluster returned {}", _intfSts);
+                  MPFRINGLOG->error("pfring_set_cluster returned {}", _intfSts);
               }
           }
           if(_nPollWaitMsec > 0)
@@ -202,8 +201,8 @@ MSTS pfringDPI::open(u_int bufSize)
 
           if(pfring_enable_ring(m_pdIn))
           {
-              m_pLog->error("pfring enable ring failure");
-              break;
+              MPFRINGLOG->error("pfring enable ring failure");
+              throw_with_trace(runtime_error(""));
           }
       }
       //perhaps use pfring reflection in the future.
@@ -239,15 +238,15 @@ MSTS pfringDPI::open(u_int bufSize)
               if (_i < _lstNames.Size()-1)
                   _strIntfName += ",";
           }
-          m_pLog->debug("interfaces_out/snaplen: {}",_nSnapLength);
-          m_pLog->debug("interfaces_out/direction: {}",_strDirection);
-          m_pLog->debug("interfaces_out/core_bind_id: {}",_nBindId);
-          m_pLog->debug("interfaces_out/watermark: {}",_nWatermark);
-          m_pLog->debug("interfaces_out/poll_wait_msec: {}",_nPollWaitMsec);
-          m_pLog->debug("interfaces_out/ring_cluster_id: {}",_nRingClusterId);
-          m_pLog->debug("interfaces_out/hw_timestamp: {}",_bHwTimeStamp);
-          m_pLog->debug("interfaces_out/strip_timestamp: {}",_bStripTimeStamp);
-          m_pLog->debug("interfaces_out/name: {}",_strIntfName);
+          MPFRINGLOG->debug("interfaces_out/snaplen: {}",_nSnapLength);
+          MPFRINGLOG->debug("interfaces_out/direction: {}",_strDirection);
+          MPFRINGLOG->debug("interfaces_out/core_bind_id: {}",_nBindId);
+          MPFRINGLOG->debug("interfaces_out/watermark: {}",_nWatermark);
+          MPFRINGLOG->debug("interfaces_out/poll_wait_msec: {}",_nPollWaitMsec);
+          MPFRINGLOG->debug("interfaces_out/ring_cluster_id: {}",_nRingClusterId);
+          MPFRINGLOG->debug("interfaces_out/hw_timestamp: {}",_bHwTimeStamp);
+          MPFRINGLOG->debug("interfaces_out/strip_timestamp: {}",_bStripTimeStamp);
+          MPFRINGLOG->debug("interfaces_out/name: {}",_strIntfName);
 
           if(_nThreads > 1)     _flags |= PF_RING_REENTRANT;
           if(_bHwTimeStamp)     _flags |= PF_RING_HW_TIMESTAMP;
@@ -256,15 +255,15 @@ MSTS pfringDPI::open(u_int bufSize)
           m_pdOut = pfring_open(_strIntfName.c_str(), _nSnapLength, _flags);
           if(!m_pdOut)
           {
-              m_pLog->error("failure to perform pfring_open on intf {}",_strIntfName);
-              break;
+              MPFRINGLOG->error("failure to perform pfring_open on intf {}",_strIntfName);
+              throw_with_trace(runtime_error(""));
           }
           u_int32_t _version;
 
           pfring_set_application_name(m_pdOut,(char*)"ipps");
           pfring_version(m_pdOut, &_version);
 
-          m_pLog->info("Using PF_RING v.{}.{}.{}",
+          MPFRINGLOG->info("Using PF_RING v.{}.{}.{}",
              (_version & 0xFFFF0000) >> 16,
              (_version & 0x0000FF00) >> 8,
              _version & 0x000000FF);
@@ -274,8 +273,8 @@ MSTS pfringDPI::open(u_int bufSize)
               _intfSts = pfring_set_tx_watermark(m_pdOut, _nWatermark);
               if(MDSUCCESS != _intfSts)
               {
-                  m_pLog->error("pfring_set_tx_watermark() failed [rc={}]", _intfSts);
-                  break;
+                  MPFRINGLOG->error("pfring_set_tx_watermark() failed [rc={}]", _intfSts);
+                  throw_with_trace(runtime_error(""));
               }
           }*/
           if(_nRingClusterId > 0)
@@ -283,7 +282,7 @@ MSTS pfringDPI::open(u_int bufSize)
               _intfSts = pfring_set_cluster(m_pdOut, _nRingClusterId, cluster_hash_type);
               if(MDSUCCESS != _intfSts)
               {
-                  m_pLog->error("pfring_set_cluster returned {}", _intfSts);
+                  MPFRINGLOG->error("pfring_set_cluster returned {}", _intfSts);
               }
           }
           packet_direction direction;
@@ -295,25 +294,24 @@ MSTS pfringDPI::open(u_int bufSize)
               direction = rx_and_tx_direction;
           else
           {
-              m_pLog->error("pfring_set_direction, options are rx,tx and rx+tx");
-              break;
+              MPFRINGLOG->error("pfring_set_direction, options are rx,tx and rx+tx");
+              throw_with_trace(runtime_error(""));
           }
           pfring_set_direction(m_pdOut, direction);
           _intfSts = pfring_set_socket_mode(m_pdOut, send_only_mode);
           if(MDSUCCESS != _intfSts)
           {
-              m_pLog->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
-              break;
+              MPFRINGLOG->error("pfring_set_socket_mode returned [_intfSts={}]", _intfSts);
+              throw_with_trace(runtime_error(""));
           }
 
           if(MDSUCCESS != pfring_enable_ring(m_pdOut))
           {
-              m_pLog->error("Unable to enable egress ring");
-              break;
+              throw_with_trace(runtime_error("Unable to enable egress ring"));
           }
       }
       _sts = MDSUCCESS;
-  }while(FALSE);
+  }catch (const std::exception& e) { MPFRING_STACKTRACE(e) }
 
   /* perform cleanup in case of error */
   if(MDSUCCESS != _sts)
@@ -329,7 +327,7 @@ MSTS pfringDPI::open(u_int bufSize)
 
 rxtxal_pkthdr* pfringDPI::getPktHeader()
 {
-    m_pLog->info("pfringDPI::getPktHeader()");
+    MPFRINGLOG->info("pfringDPI::getPktHeader()");
     m_pktHdr.caplen   = m_pfringPktHdr.caplen;
     m_pktHdr.eth_type = m_pfringPktHdr.extended_hdr.parsed_pkt.eth_type;
     return (&m_pktHdr);
@@ -339,10 +337,10 @@ int pfringDPI::write_rx(void* pbuffer, u_int size)
 {
   int       _pktSent;
 
-  m_pLog->info("pfringDPI::write_rx()");
-  m_pLog->info("pfring caplen {}",size);
+  MPFRINGLOG->info("pfringDPI::write_rx()");
+  MPFRINGLOG->info("pfring caplen {}",size);
   _pktSent = pfring_send(m_pdIn, (char*)pbuffer, size,1);
-  m_pLog->info("pfring send {}",_pktSent);
+  MPFRINGLOG->info("pfring send {}",_pktSent);
   return _pktSent;
 }
 
@@ -350,10 +348,10 @@ int pfringDPI::write_tx(void* pbuffer, u_int size)
 {
   int       _pktSent;
 
-  m_pLog->info("pfringDPI::write_tx()");
-  m_pLog->info("pfring caplen {}",size);
+  MPFRINGLOG->info("pfringDPI::write_tx()");
+  MPFRINGLOG->info("pfring caplen {}",size);
   _pktSent = pfring_send(m_pdOut, (char*)pbuffer, size,1);
-  m_pLog->info("pfring send {}",_pktSent);
+  MPFRINGLOG->info("pfring send {}",_pktSent);
   return _pktSent;
 }
 
@@ -361,7 +359,7 @@ int pfringDPI::read_rx(void* pbuffer, u_int bufSize)
 {
   int       _pktRead;
 
-  m_pLog->info("pfringDPI::read_rx()");
+  MPFRINGLOG->info("pfringDPI::read_rx()");
   _pktRead = pfring_recv(m_pdIn, (u_char**)&pbuffer,
           bufSize,
           &m_pfringPktHdr, m_waitForPacket);
@@ -372,7 +370,7 @@ int pfringDPI::read_tx(void* pbuffer, u_int bufSize)
 {
   int       _pktRead;
 
-  m_pLog->info("pfringDPI::read_tx()");
+  MPFRINGLOG->info("pfringDPI::read_tx()");
   _pktRead = pfring_recv(m_pdOut, (u_char**)&pbuffer,
           bufSize,
           &m_pfringPktHdr, m_waitForPacket);
@@ -383,7 +381,7 @@ MSTS pfringDPI::flush_rx()
 {
   MSTS  _sts;
 
-  m_pLog->info("pfringDPI::flush_rx()");
+  MPFRINGLOG->info("pfringDPI::flush_rx()");
   _sts = pfring_flush_tx_packets(m_pdIn);
   return _sts;
 }
@@ -392,27 +390,27 @@ MSTS pfringDPI::flush_tx()
 {
   MSTS  _sts;
 
-  m_pLog->info("pfringDPI::flush_tx()");
+  MPFRINGLOG->info("pfringDPI::flush_tx()");
   _sts = pfring_flush_tx_packets(m_pdOut);
   return _sts;
 }
 
 MSTS pfringDPI::close_rx()
 {
-  m_pLog->info("pfringDPI::close_rx()");
+  MPFRINGLOG->info("pfringDPI::close_rx()");
   pfring_close(m_pdIn);
   return MDSUCCESS;
 }
 
 MSTS pfringDPI::close_tx()
 {
-  m_pLog->info("pfringDPI::close_tx()");
+  MPFRINGLOG->info("pfringDPI::close_tx()");
   pfring_close(m_pdOut);
   return MDSUCCESS;
 }
 
 u_char pfringDPI::isWaitForPacket(){
-    m_pLog->info("pfringDPI::isWaitForPacket()");
+    MPFRINGLOG->info("pfringDPI::isWaitForPacket()");
     return (m_waitForPacket);
 }
 
@@ -425,7 +423,7 @@ void pfringDPI::printPacket(int32_t tzone, void* pBuffer)
   char _dumpStr[512] = { 0 };
   u_char* _pBuffer = (u_char*)pBuffer;
 
-  m_pLog->info("pfringDPI::printPacket()");
+  MPFRINGLOG->info("pfringDPI::printPacket()");
 
  if(/*(!is_sysdig) &&*/ (m_pfringPktHdr.ts.tv_sec == 0 || m_pfringPktHdr.extended_hdr.parsed_pkt.offset.l3_offset == 0))
  {
@@ -478,7 +476,7 @@ void pfringDPI::printPacket(int32_t tzone, void* pBuffer)
          ntohs(ehdr->ether_type),
          m_pfringPktHdr.caplen, m_pfringPktHdr.len);
   }
-  m_pLog->info("{}",_dumpStr);
+  MPFRINGLOG->info("{}",_dumpStr);
 }
 
 //TODO: temporary helper, replace this  code

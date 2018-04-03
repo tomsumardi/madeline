@@ -12,11 +12,15 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-class pfringDPI {
+#define MPFRINGLOG                   m_pMPfringLog
+#define MPFRING_STACKTRACE(e)        DUMP_STACKTRACE_LOG(e, MPFRINGLOG)
+
+class pfringDPI : public madeline
+{
   public:
       pfringDPI() {}
       pfringDPI(bool bver, std::shared_ptr<spdlog::logger> pLog, Document *pDoc) :
-          m_bVerbose(bver),m_waitForPacket(1), m_pLog(pLog), m_pdIn(NULL), m_pdOut(NULL)
+          m_bVerbose(bver),m_waitForPacket(1), m_pMPfringLog(pLog), m_pdIn(NULL), m_pdOut(NULL)
       {
           //Do deep copy here.
           m_ippsDoc.CopyFrom(*pDoc, m_ippsDoc.GetAllocator());
@@ -46,7 +50,7 @@ class pfringDPI {
   private:
       bool                                m_bVerbose;
       unsigned char                       m_waitForPacket;
-      std::shared_ptr<spdlog::logger>     m_pLog;
+      std::shared_ptr<spdlog::logger>     m_pMPfringLog;
       rxtxal_pkthdr                       m_pktHdr;
       Document                            m_ippsDoc;
       // Pfring specific

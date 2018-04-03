@@ -25,9 +25,7 @@
 #define IPPS_SYNCH_TIMEOUT_MS       500
 #define IPPS_THDJOIN_TIMEOUT_SEC    5
 #define IPPSLOG                     m_pMIppsLog
-#define DUMP_STACKTRACE(e)          std::vector<string> stkTrace = stackTrace(e); \
-        for (std::vector<string>::iterator it = stkTrace.begin(); it != stkTrace.end(); ++it) \
-        {IPPSLOG->error(*it);}
+#define IPPS_STACKTRACE(e)          DUMP_STACKTRACE_LOG(e, IPPSLOG)
 
 class ipps : public madeline{
   public:

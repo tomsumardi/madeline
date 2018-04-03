@@ -16,6 +16,14 @@ void throw_with_trace(const E& e) {
         << traced(boost::stacktrace::stacktrace());
 }
 
+#define DUMP_STACKTRACE_LOG(e, plog)          std::vector<string> stkTrace = stackTrace(e); \
+        for (std::vector<string>::iterator it = stkTrace.begin(); it != stkTrace.end(); ++it) \
+        {plog->error(*it);}
+
+#define DUMP_STACKTRACE_CERR(e)          std::vector<string> stkTrace = stackTrace(e); \
+        for (std::vector<string>::iterator it = stkTrace.begin(); it != stkTrace.end(); ++it) \
+        {  cerr << *it << endl;  }
+
 class madeline{
     public:
         madeline()

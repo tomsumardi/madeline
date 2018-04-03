@@ -10,6 +10,8 @@ Makefile
 *.cache
 *.deps
 *.a
+*.scan
+*.log
 #*.docx
 *.status
 #*.png

@@ -34,7 +34,7 @@ CFLAGS_OPTS    += -Wall -Wextra -Wno-unused-parameter -Wno-deprecated-declaratio
 #	LDFLAGS_OPTS   += -Wl,--gc-sections
 #else
 	CFLAGS_OPTS    += -g -Wall -Wformat-security -fstack-protector-all `pkg-config --cflags glib-2.0`
-	CFLAGS_DEFS    += -DMDLN_DEBUG
+	CFLAGS_DEFS    += -DMDLN_DEBUG -DBOOST_STACKTRACE_USE_BACKTRACE
 #endif
 #Passing Version to MDLN
 #CFLAGS_OPTS        += -DMDLN_VER='"$(MDLNDIR_VER)"' -DMDLN_REL='"$(MDLNDIR_REL)"'

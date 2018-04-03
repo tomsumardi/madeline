@@ -73,7 +73,7 @@ MSTS ipps::processCmdArgs(int argc, char *argv[])
           }
           _sts = MDSUCCESS;
     }
-    catch (const std::exception& e) { DUMP_STACKTRACE(e) }
+    catch (const std::exception& e) { IPPS_STACKTRACE(e) }
 
     return _sts;
 }
@@ -123,7 +123,7 @@ MSTS ipps::configureSysLog()
             throw_with_trace(runtime_error(""));
         IPPSLOG = _ippsmlog.getRotateLog();
         _sts = MDSUCCESS;
-    }catch (const std::exception& e) { DUMP_STACKTRACE(e) }
+    }catch (const std::exception& e) { IPPS_STACKTRACE(e) }
 
     return(_sts);
 }
@@ -160,7 +160,7 @@ MSTS ipps::configurePfring()
             throw_with_trace(runtime_error("failure rxtx object memory allocation"));
         }
         m_vpThread.addPfring(_pRxTx);
-    }catch (const std::exception& e) { DUMP_STACKTRACE(e) }
+    }catch (const std::exception& e) { IPPS_STACKTRACE(e) }
 
     return(_sts);
 }
@@ -210,7 +210,7 @@ MSTS ipps::threadExec()
             boost::this_thread::sleep(boost::posix_time::seconds(1));
         }
         _sts = MDSUCCESS;
-    }catch (const std::exception& e) { DUMP_STACKTRACE(e) }
+    }catch (const std::exception& e) { IPPS_STACKTRACE(e) }
 
     return(_sts);
 }

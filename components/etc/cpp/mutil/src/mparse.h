@@ -13,15 +13,17 @@
 #include <string>
 
 using namespace rapidjson;
+#define MPARSELOG             m_pMParseLog
+#define MPARSE_STACKTRACE(e)  DUMP_STACKTRACE_LOG(e, MPARSELOG)
 
-class mutilMparse{
+class mutilMparse : public madeline{
 
   public:
     mutilMparse()
     {
-        strJsonLoc = "";
-        pJsonDoc = NULL;
-        pSchemaDoc = NULL;
+        m_strJsonLoc = "";
+        m_pJsonDoc = NULL;
+        m_pSchemaDoc = NULL;
     };
     mutilMparse(string strJLoc,
             Document* pJDoc,
@@ -29,11 +31,11 @@ class mutilMparse{
             Document* pSDoc,
             std::shared_ptr<spdlog::logger> pLog)
     {
-        strJsonLoc = strJLoc;
-        pJsonDoc = pJDoc;
-        strSchemaLoc = strSLoc;
-        pSchemaDoc = pSDoc;
-        pMIppsLog = pLog;
+        m_strJsonLoc = strJLoc;
+        m_pJsonDoc = pJDoc;
+        m_strSchemaLoc = strSLoc;
+        m_pSchemaDoc = pSDoc;
+        m_pMParseLog = pLog;
     };
     string read(string strFpathName);
     MSTS parse(string strJTxt, Document* pJDoc);
@@ -44,11 +46,11 @@ class mutilMparse{
   private:
     // dangerous passing pointer here, will need to do
     //deep copy
-    std::shared_ptr<spdlog::logger>     pMIppsLog;
-    Document                            *pJsonDoc;
-    string                              strJsonLoc;
-    Document                            *pSchemaDoc;
-    string                              strSchemaLoc;
+    std::shared_ptr<spdlog::logger>     m_pMParseLog;
+    Document                            *m_pJsonDoc;
+    string                              m_strJsonLoc;
+    Document                            *m_pSchemaDoc;
+    string                              m_strSchemaLoc;
 
 };
 
