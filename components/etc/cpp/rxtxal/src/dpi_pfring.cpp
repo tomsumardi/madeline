@@ -24,6 +24,8 @@
 // Default operations
 Value&  pfringDPI::getConfigValue(char* field)
 {
+    Value& _intfField = m_ippsDoc;
+
     try
     {
         if(!m_ippsDoc.HasMember(field))
@@ -31,14 +33,10 @@ Value&  pfringDPI::getConfigValue(char* field)
             MPFRINGLOG->error("{} field is not available",field);
             throw_with_trace(runtime_error(""));
         }
-    }catch (const std::exception& e)
-    {
-        MPFRING_STACKTRACE(e)
-        //Need to return error instead of exiting
-        exit(M_IPPS_ERRNO_THREAD);
-    }
+        _intfField = m_ippsDoc[field];
+    } catch (const std::exception& e){ MPFRING_STACKTRACE(e) }
 
-    return m_ippsDoc[field];
+    return _intfField;
 }
 
 MSTS pfringDPI::open(u_int bufSize)

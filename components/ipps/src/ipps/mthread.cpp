@@ -13,35 +13,32 @@ void mthread :: procPkts()
     int32_t              _tzone = gmt_to_local(0);
     u_char*              _pBuffer = NULL;
     u_int                _bufSize = IPPS_NO_ZC_BUFFER_LEN;
-    char                 _fieldName[] = "interfaces_in";
+    char                 _topFieldName1[] = "interfaces_in";
     vector<string>       _strl3blacklist;
 
     try
     {
+        // open pfring
         _sts = m_pRxTx->open(_bufSize);
         if(MDSUCCESS != _sts)
             throw_with_trace(runtime_error("failure pfring initialization"));
-        else
+        // Get list of L3 blacklisted sites
+        const Value&  _intfField = m_pRxTx->getConfigValue(_topFieldName1);
+        if(!_intfField.HasMember("l3_blacklists"))
+            throw_with_trace(runtime_error("failure l3 blacklist sites"));
+        string  _strIp = "";
+        auto& _lstIps = _intfField["l3_blacklists"];
+        for (SizeType _i = 0; _i < _lstIps.Size(); _i++)
         {
-            // Get list of L3 blacklisted sites
-            const Value&  _intfField = m_pRxTx->getConfigValue(_fieldName);
-            if(_intfField.HasMember("l3_blacklists"))
-            {
-                string  _strIp = "";
-                auto& _lstIps = _intfField["l3_blacklists"];
-                for (SizeType _i = 0; _i < _lstIps.Size(); _i++)
-                {
-                    _strIp = _lstIps[_i].GetString();
-                    _strl3blacklist.push_back(_strIp);
-                }
-                for(vector<string>::const_iterator i = _strl3blacklist.begin(); i != _strl3blacklist.end(); ++i) {
-                    THDLOG->info(*i);
-                }
-            }
-            else
-                throw_with_trace(runtime_error("failure l3 blacklist sites"));
+            _strIp = _lstIps[_i].GetString();
+            _strl3blacklist.push_back(_strIp);
+        }
+        for(vector<string>::const_iterator i = _strl3blacklist.begin();
+                i != _strl3blacklist.end(); ++i) {
+            THDLOG->info(*i);
         }
 
+        // pkt processing starts here
         // use C calloc instead of new
         _pBuffer = (u_char*)calloc(sizeof(u_char),_bufSize);
         if(!_pBuffer)
@@ -49,46 +46,45 @@ void mthread :: procPkts()
             THDLOG->error("insufficient memory: {}",_bufSize);
             throw_with_trace(runtime_error(""));
         }
-        else
+
+        // C memset
+        memset(_pBuffer,0,sizeof(u_char)*_bufSize);
+        while(1)
         {
-            // C memset
-            memset(_pBuffer,0,sizeof(u_char)*_bufSize);
-            while(1)
+            if(m_pRxTx->read_rx(_pBuffer,_bufSize) > 0)
             {
-                if(m_pRxTx->read_rx(_pBuffer,_bufSize) > 0)
+                _pktHdr = m_pRxTx->getPktHeader();
+                if(_pktHdr)
                 {
-                    _pktHdr = m_pRxTx->getPktHeader();
-                    if(_pktHdr)
+                    switch(_pktHdr->eth_type)
                     {
-                        switch(_pktHdr->eth_type)
-                        {
-                            case MD_IPV4:
-                                m_pRxTx->printPacket(_tzone, _pBuffer);
-                                _pktSent = m_pRxTx->write_tx(_pBuffer,_pktHdr->caplen);
-                                if(_pktSent < 0)
-                                    THDLOG->info("pfring_send err, {}",_pktSent);
-                                _sts = m_pRxTx->flush_tx();
-                                if(MDSUCCESS != _sts)
-                                    THDLOG->info("pfring_flush_tx_packets err, {}",_sts);
-                                break;
+                        case MD_IPV4:
+                            m_pRxTx->printPacket(_tzone, _pBuffer);
+                            _pktSent = m_pRxTx->write_tx(_pBuffer,_pktHdr->caplen);
+                            if(_pktSent < 0)
+                                THDLOG->info("pfring_send err, {}",_pktSent);
+                            _sts = m_pRxTx->flush_tx();
+                            if(MDSUCCESS != _sts)
+                                THDLOG->info("pfring_flush_tx_packets err, {}",_sts);
+                            break;
 
-                            case MD_IPV6:
-                                //will this work??
-                                m_pRxTx->printPacket(_tzone, _pBuffer);
-                                break;
+                        case MD_IPV6:
+                            //will this work??
+                            m_pRxTx->printPacket(_tzone, _pBuffer);
+                            break;
 
-                            default:
-                                break;
-                        }
+                        default:
+                            break;
                     }
                 }
-                else
-                {
-                    if(m_pRxTx->isWaitForPacket() == 0)
-                        sched_yield();
-                }
+            }
+            else
+            {
+                if(m_pRxTx->isWaitForPacket() == 0)
+                    sched_yield();
             }
         }
+        // pkt processing ends here
     } catch (const std::exception& e) {
         IPPS_THDSTACKTRACE(e)
         exit(M_IPPS_ERRNO_THREAD);
