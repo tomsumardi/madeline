@@ -1,4 +1,4 @@
-#feel free to modify 
+#feel free to modify
 Makefile
 *.in
 *.DS_Store
@@ -24,6 +24,15 @@ components/ipps/stamp-h1
 components/ipps/configure.scan
 components/ipps/autoscan.log
 components/ipps/ipps-1.0.0.tar.gz
+#ppp post build
+components/ppp/config.h
+components/ppp/config.log
+components/ppp/configure
+components/ppp/src/main/ppp
+components/ppp/stamp-h1
+components/ppp/configure.scan
+components/ppp/autoscan.log
+components/ppp/ppp-1.0.0.tar.gz
 #mutil post build
 components/etc/cpp/mutil/config.h
 components/etc/cpp/mutil/config.log

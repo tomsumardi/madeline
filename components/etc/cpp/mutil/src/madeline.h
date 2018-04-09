@@ -15,6 +15,13 @@
 #define M_IPPS_ERRNO_THREAD_EXEC            104
 #define M_IPPS_ERRNO_THREAD                 105
 
+#define M_PPP_ERRNO_PARSE_CMD_ARG           120
+#define M_PPP_ERRNO_CONF_SYSLOG             121
+#define M_PPP_ERRNO_CONF_PFRING             122
+#define M_PPP_ERRNO_CONF_COM_CHANNELS       123
+#define M_PPP_ERRNO_THREAD_EXEC             124
+#define M_PPP_ERRNO_THREAD                  125
+
 using namespace std;
 typedef boost::error_info<struct tag_stacktrace, boost::stacktrace::stacktrace> traced;
 template <class E>

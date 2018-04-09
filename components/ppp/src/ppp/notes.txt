@@ -1,0 +1,109 @@
+    //check https://github.com/ntop/PF_RING/blob/dev/userland/lib/pfring.h
+    //check https://github.com/ntop/PF_RING/blob/v6.4.1/userland/examples/pfcount.c
+
+    "interfaces_in": [
+    {
+      "name": "eth0",
+      "direction": "rx",
+      "pcap_filters": [
+        "tcp port 80",
+        "udp port 80"
+      ],
+      "l3_blacklists": [
+        "192.168.56.2",
+        "192.168.56.3"
+      ]
+    },
+    {
+      "name": "eth1",
+      "direction": "tx",
+      "pcap_filters": [
+        "tcp port 8080",
+        "udp port 8080"
+      ],
+      "l3_blacklists": [
+        "192.168.57.2",
+        "192.168.57.3"
+      ]
+    }
+  ]
+/*
+//TODO: will be replaced with json schema validator
+MSTS ppp::validatePppJsonDocs()
+{
+    MSTS    _sts = MDERROR;
+
+    pMPppLog->debug("validating ppp config");
+    // TODO: validate Document pppDoc, more validation needed
+    BOOST_ASSERT(pppDoc.HasMember("version"));
+    BOOST_ASSERT(pppDoc["version"].IsString());
+    //cout << boost::format("version = %s\n") %pppDoc["version"].GetString();
+
+    const Value& _log = pppDoc["log"];
+    BOOST_ASSERT(pppDoc.HasMember("log"));
+    BOOST_ASSERT(_log.HasMember("dir_location"));
+    BOOST_ASSERT(_log["dir_location"].IsString());
+    BOOST_ASSERT(_log.HasMember("size_mb"));
+    BOOST_ASSERT(_log["size_mb"].IsNumber());
+    BOOST_ASSERT(_log.HasMember("num"));
+    BOOST_ASSERT(_log["num"].IsNumber());
+    BOOST_ASSERT(_log.HasMember("level"));
+    BOOST_ASSERT(_log["level"].IsString());
+
+    Value& _intfListIn = pppDoc["interfaces_in"];
+    BOOST_ASSERT(pppDoc.HasMember("interfaces_in"));
+    BOOST_ASSERT(pppDoc["interfaces_in"].IsArray());
+
+    // rapidjson uses SizeType instead of size_t.
+    // name and direction are required values
+    for (SizeType i = 0; i < _intfListIn.Size(); i++)
+    {
+        const Value& _intfElm = _intfListIn[i];
+
+        if(_intfElm.HasMember("name"))
+        {
+            BOOST_ASSERT(_intfElm["name"].IsString());
+            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
+        }
+        if(_intfElm.HasMember("direction"))
+        {
+            BOOST_ASSERT(_intfElm["direction"].IsString());
+            //cout << boost::format("direction = %s\n") %_intfElm["direction"].GetString();
+        }
+    }
+
+    Value& _intfListOut = pppDoc["interfaces_out"];
+    BOOST_ASSERT(pppDoc.HasMember("interfaces_out"));
+    BOOST_ASSERT(pppDoc["interfaces_out"].IsArray());
+    for (SizeType i = 0; i < _intfListOut.Size(); i++)
+    {
+        const Value& _intfElm = _intfListOut[i];
+
+        if(_intfElm.HasMember("name"))
+        {
+            BOOST_ASSERT(_intfElm["name"].IsString());
+            //cout << boost::format("name = %s\n") %_intfElm["name"].GetString();
+        }
+    }
+    const Value& _pfring = pppDoc["pfring"];
+    BOOST_ASSERT(pppDoc.HasMember("pfring"));
+    if(_pfring.HasMember("threads"))
+      BOOST_ASSERT(_pfring["threads"].IsNumber());
+    if(_pfring.HasMember("core_bind_id"))
+      BOOST_ASSERT(_pfring["core_bind_id"].IsNumber());
+    if(_pfring.HasMember("watermark"))
+      BOOST_ASSERT(_pfring["watermark"].IsNumber());
+    if(_pfring.HasMember("poll_wait_msec"))
+      BOOST_ASSERT(_pfring["poll_wait_msec"].IsNumber());
+    if(_pfring.HasMember("ring_cluster_id"))
+      BOOST_ASSERT(_pfring["ring_cluster_id"].IsNumber());
+    if(_pfring.HasMember("hw_timestamp"))
+      BOOST_ASSERT(_pfring["hw_timestamp"].IsString());
+    if(_pfring.HasMember("strip_timestamp"))
+      BOOST_ASSERT(_pfring["strip_timestamp"].IsString());
+
+    _sts = MDSUCCESS;
+
+   return(_sts);
+}
+*/
