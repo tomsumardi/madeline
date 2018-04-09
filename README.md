@@ -77,6 +77,12 @@ make
 ```
 * phs:
 * ppp:
+```
+cd <install-home>/madeline/components/ppp
+make clean
+./configure
+make
+```
 
 ### 2. How to clean: Each components must be clean separately. 
 * mutil
@@ -96,6 +102,10 @@ make clean
 ```
 * phs:
 * ppp:
+```
+cd <install-home>/madeline/components/ppp
+make clean
+```
 
 ### 3. How to run: Each components must be run separately. 
 * ipps: 
